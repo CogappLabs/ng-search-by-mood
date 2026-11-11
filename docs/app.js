@@ -23,9 +23,13 @@ const BLURBS = {
     to subject matter, composition and style - not just colour. Rather than
     just picking paintings that are close to your search words, this mode
     also checks each painting against a small set of generically opposite
-    mood words (so a search for "joyful" is weighed against "sorrowful" and
-    similar) - this catches paintings that would otherwise rank well on your
-    words alone despite reading, overall, as the opposite.`,
+    mood words - and picks which kind of "opposite" fits your search
+    automatically. "Joyful" is mainly about how positive or negative
+    something feels, so it's weighed against "sorrowful" and similar; but
+    "boredom" is mainly about how calm or exciting something feels, so it's
+    weighed against "exciting"/"thrilling" instead - otherwise a dramatic,
+    high-energy painting could rank as "not boring" simply for not being
+    happy, which isn't the same thing as actually being boring.`,
   vad: `This mode ignores subject matter completely and looks only at colour.
     Each painting's brightness and saturation (from its dominant colour
     swatches) are converted into how pleasant, how calming-or-exciting, and
@@ -36,12 +40,14 @@ const BLURBS = {
     qualities - with words like "very" or "slightly" adjusting the intensity.
     Paintings whose colour-based score lands closest to your words' score
     come first.`,
-  rrf: `This blends the two approaches above using <strong>Reciprocal Rank
-    Fusion</strong>, a technique from search-engine research for combining
-    rankings that aren't on comparable scales. Rather than averaging raw
-    numbers from each method, it looks at each painting's position in both
-    the CLIP ranking and the colour ranking, and rewards paintings that rank
-    well across both.`,
+  rrf: `This blends three signals - CLIP, colour, and a third: the National
+    Gallery's own curatorial description of each painting, scored through
+    the same NRC-VAD Lexicon as your search words - using <strong>Reciprocal
+    Rank Fusion</strong>, a technique from search-engine research for
+    combining rankings that aren't on comparable scales. Rather than
+    averaging raw numbers from each method, it looks at each painting's
+    position in all three rankings, and rewards paintings that rank well
+    across them.`,
 };
 
 function updateBlurb() {

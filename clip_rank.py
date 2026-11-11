@@ -11,9 +11,25 @@ PRETRAINED = "openai"
 
 # Small, fixed word sets used only as a generic "opposite mood" reference
 # point - not shown to users, not part of the open-vocabulary search itself.
-# See rank_with_scores() for how they're used.
-POSITIVE_ANCHORS = ["joyful", "happy", "cheerful", "pleasant", "delightful"]
-NEGATIVE_ANCHORS = ["sorrowful", "sad", "grim", "unpleasant", "bleak"]
+# One pair per NRC-VAD axis, since different queries are distinguished by
+# different axes: "joy" is mainly a valence word, but "boredom" is mainly a
+# (low) AROUSAL word - contrasting it against positive-valence words like
+# "happy" rewards anything merely un-happy, including dramatic/violent
+# scenes that are plenty exciting, just not joyful. See rank_with_scores().
+ANCHORS = {
+    "valence": {
+        "pos": ["joyful", "happy", "cheerful", "pleasant", "delightful"],
+        "neg": ["sorrowful", "sad", "grim", "unpleasant", "bleak"],
+    },
+    "arousal": {
+        "pos": ["exciting", "thrilling", "intense", "electrifying", "stimulating"],
+        "neg": ["calm", "sleepy", "tranquil", "sedate", "drowsy"],
+    },
+    "dominance": {
+        "pos": ["powerful", "commanding", "dominant", "assertive", "forceful"],
+        "neg": ["submissive", "weak", "helpless", "powerless", "timid"],
+    },
+}
 
 # module-level cache: the model, embeddings, lexicon and anchor vectors only
 # get loaded/computed once per process, no matter how many times
@@ -23,8 +39,7 @@ _tokenizer = None
 _embeddings = None
 _uids = None
 _lexicon = None
-_positive_anchor_vec = None
-_negative_anchor_vec = None
+_anchor_vecs = None  # {"valence": {"pos": vec, "neg": vec}, "arousal": {...}, ...}
 
 
 def _embed_texts(texts):
@@ -40,15 +55,14 @@ def _embed_texts(texts):
 def _average_embedding(words):
     """Embed several words and collapse them to a single unit-length vector
     (their mean, re-normalised) - used to build a less idiosyncratic
-    "generic positive/negative mood" reference point than any one word."""
+    "generic anchor" reference point than any one word."""
     vecs = _embed_texts(words)
     avg = vecs.mean(axis=0)
     return avg / np.linalg.norm(avg)
 
 
 def _load():
-    global _model, _tokenizer, _embeddings, _uids
-    global _lexicon, _positive_anchor_vec, _negative_anchor_vec
+    global _model, _tokenizer, _embeddings, _uids, _lexicon, _anchor_vecs
     if _model is not None:
         return
     _embeddings = np.load("data/clip_embeddings.npy")
@@ -57,8 +71,10 @@ def _load():
     _tokenizer = open_clip.get_tokenizer(MODEL_NAME)
     _model.eval()
     _lexicon = load_lexicon()
-    _positive_anchor_vec = _average_embedding(POSITIVE_ANCHORS)
-    _negative_anchor_vec = _average_embedding(NEGATIVE_ANCHORS)
+    _anchor_vecs = {
+        axis: {pole: _average_embedding(words) for pole, words in poles.items()}
+        for axis, poles in ANCHORS.items()
+    }
 
 
 def rank_with_scores(query):
@@ -74,17 +90,27 @@ def rank_with_scores(query):
     reach the top results), but scored higher still, 0.252, on "sorrowful" -
     a plain similarity ranking never saw that second number at all.
 
-    Which contrast set to use (sorrowful-ish vs joyful-ish words) is picked
-    automatically per query, from the query's own valence sign via the
-    NRC-VAD lexicon (a positive-valence query gets contrasted against the
-    negative anchor words, and vice versa) - so this still works for
-    arbitrary open-ended text, not just a fixed list of known mood words.
+    Which axis to contrast on (valence/arousal/dominance) and which pole
+    (e.g. sorrowful-ish vs joyful-ish) is picked automatically per query:
+    the query's own (valence, arousal, dominance) is looked up via the
+    NRC-VAD lexicon, the axis with the LARGEST magnitude is treated as the
+    one that actually defines this query, and the contrast anchor is the
+    opposite pole of THAT axis specifically. "joy" is mostly a valence word,
+    so it's contrasted against negative-valence anchors; "boredom" is
+    mostly a (low) arousal word, so it's contrasted against high-arousal
+    anchors instead of positive-valence ones - which stops dramatic/violent
+    (high-arousal) paintings from scoring well just for being un-happy.
     """
     _load()
     query_vec = _embed_texts([query])[0]
 
-    valence, _, _ = score_query(query, _lexicon)
-    contrast_vec = _negative_anchor_vec if valence >= 0 else _positive_anchor_vec
+    vad = score_query(query, _lexicon)
+    axes = ("valence", "arousal", "dominance")
+    dominant_axis = max(range(3), key=lambda i: abs(vad[i]))
+    axis_name = axes[dominant_axis]
+    pole = "pos" if vad[dominant_axis] >= 0 else "neg"
+    contrast_pole = "neg" if pole == "pos" else "pos"
+    contrast_vec = _anchor_vecs[axis_name][contrast_pole]
 
     query_sims = _embeddings @ query_vec
     contrast_sims = _embeddings @ contrast_vec

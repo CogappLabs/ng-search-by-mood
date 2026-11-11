@@ -334,3 +334,339 @@ Change: CLIP mode now scores a contrastive margin - similarity to the query minu
 9. **[Saint Peter](https://data.ng.ac.uk/media/iiif/01ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — El Greco (score: 0.0166)
 10. **[Francesco Albani (?)](https://data.ng.ac.uk/media/iiif/0232-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Cariani (score: 0.0164)
 
+## After: axis-aware contrastive margin (valence / arousal / dominance)
+
+Change: the contrast anchor is now picked per-axis instead of always valence - whichever of valence/arousal/dominance has the largest magnitude for the query decides which anchor pair (e.g. exciting/calm, not just happy/sorrowful) it gets contrasted against. Result: "mild boredom" no longer surfaces dramatic, high-arousal scenes (e.g. "Two Followers of Cadmus devoured by a Dragon", "Oedipus and the Sphinx" both dropped out) since it's now correctly contrasted against "exciting"/"thrilling" rather than "happy"/"joyful". "frightening" turned out to also be arousal-dominant and was re-contrasted accordingly, but stayed coherent. "joy" and "sorrow" remain valence-dominant, so unaffected by this change. VAD mode (colour-only) is untouched, as always.
+
+### "joy"
+
+**CLIP (subject & style)**
+
+1. **[The Virgin and Child with a Shoot of Olive](https://data.ng.ac.uk/media/iiif/02B0-0001-0000-0000/full/!800,800/0/default.jpg)** — Andrea Previtali (score: 0.0268)
+2. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/06ZU-0009-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo di Credi (score: 0.0258)
+3. **[The Virgin and Child with Four Angels](https://data.ng.ac.uk/media/iiif/02ZV-0001-0000-0000/full/!800,800/0/default.jpg)** — Ugolino di Nerio (score: 0.0245)
+4. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/01XV-0001-0000-0000/full/!800,800/0/default.jpg)** — Bernardino Luini (score: 0.0233)
+5. **[The Virgin and Child with Saints](https://data.ng.ac.uk/media/iiif/0F4F-0009-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Martini da Udine (score: 0.0232)
+6. **[The Madonna and Child](https://data.ng.ac.uk/media/iiif/00T5-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Antonio Sogliani (score: 0.0231)
+7. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/030B-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian, Florentine (score: 0.0231)
+8. **[The Quaratesi Madonna](https://data.ng.ac.uk/media/iiif/0T8H-0000-0000-0000/full/!800,800/0/default.jpg)** — Gentile da Fabriano (score: 0.0230)
+9. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/0GXN-000B-0000-0000/full/!800,800/0/default.jpg)** — Masaccio (score: 0.0229)
+10. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/01RW-0001-0000-0000/full/!800,800/0/default.jpg)** — Marco d'Oggiono (score: 0.0228)
+
+**VAD (colour mood)**
+
+1. **[Saint Mary Magdalene](https://data.ng.ac.uk/media/iiif/01Y1-0001-0000-0000/full/!800,800/0/default.jpg)** — Master of the Palazzo Venezia Madonna (score: 0.4467)
+2. **[Sunflowers](https://data.ng.ac.uk/media/iiif/06QG-0009-0000-0000/full/!800,800/0/default.jpg)** — Vincent van Gogh (score: 0.4777)
+3. **[Saint Peter Damian](https://data.ng.ac.uk/media/iiif/0T5Y-0000-0000-0000/full/!800,800/0/default.jpg)** — Jacopo di Cione (score: 0.4870)
+4. **[Men with an Ox and Cattle by a Pool](https://data.ng.ac.uk/media/iiif/02AB-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Both (score: 0.4982)
+5. **[A Man with a Wreath](https://data.ng.ac.uk/media/iiif/01RL-0001-0000-0000/full/!800,800/0/default.jpg)** — Greco-Roman (score: 0.5167)
+6. **[The Baptism of Christ](https://data.ng.ac.uk/media/iiif/02XQ-0001-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo Monaco (score: 0.5230)
+7. **[In the Bibémus Quarry](https://data.ng.ac.uk/media/iiif/0VOC-000B-0000-0000/full/!800,800/0/default.jpg)** — Paul Cezanne (score: 0.5310)
+8. **[Saint Benedict admitting Saints into the Order](https://data.ng.ac.uk/media/iiif/0BEI-000B-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo Monaco (score: 0.5508)
+9. **[Cows at a Pool](https://data.ng.ac.uk/media/iiif/01NT-0001-0000-0000/full/!800,800/0/default.jpg)** — Narcisse-Virgilio Diaz de la Peña (score: 0.5611)
+10. **[Spandrel Angels](https://data.ng.ac.uk/media/iiif/02B9-0001-0000-0000/full/!800,800/0/default.jpg)** — Ugolino di Nerio (score: 0.5648)
+
+**Combined (RRF)**
+
+1. **[Sunflowers](https://data.ng.ac.uk/media/iiif/06QG-0009-0000-0000/full/!800,800/0/default.jpg)** — Vincent van Gogh (score: 0.0203)
+2. **[Saint Mary Magdalene](https://data.ng.ac.uk/media/iiif/01Y1-0001-0000-0000/full/!800,800/0/default.jpg)** — Master of the Palazzo Venezia Madonna (score: 0.0197)
+3. **[The Assumption of the Virgin](https://data.ng.ac.uk/media/iiif/01RG-0001-0000-0000/full/!800,800/0/default.jpg)** — Matteo di Giovanni (score: 0.0196)
+4. **[The Virgin and Child with Four Angels](https://data.ng.ac.uk/media/iiif/02ZV-0001-0000-0000/full/!800,800/0/default.jpg)** — Ugolino di Nerio (score: 0.0183)
+5. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/06ZU-0009-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo di Credi (score: 0.0181)
+6. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/01V3-0001-0000-0000/full/!800,800/0/default.jpg)** — Dalmatian/Venetian (score: 0.0176)
+7. **[The Virgin and Child with a Shoot of Olive](https://data.ng.ac.uk/media/iiif/02B0-0001-0000-0000/full/!800,800/0/default.jpg)** — Andrea Previtali (score: 0.0175)
+8. **[Saint Peter Damian](https://data.ng.ac.uk/media/iiif/0T5Y-0000-0000-0000/full/!800,800/0/default.jpg)** — Jacopo di Cione (score: 0.0168)
+9. **[The Virgin and Child with Saints](https://data.ng.ac.uk/media/iiif/02DM-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian, Florentine (score: 0.0167)
+10. **[The Virgin and Child with Saints](https://data.ng.ac.uk/media/iiif/0F4F-0009-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Martini da Udine (score: 0.0165)
+
+### "sorrow"
+
+**CLIP (subject & style)**
+
+1. **[The Interior of a Barn with Two Peasants](https://data.ng.ac.uk/media/iiif/02E8-0001-0000-0000/full/!800,800/0/default.jpg)** — Isack van Ostade (score: 0.0427)
+2. **[The Lamentation over the Dead Christ](https://data.ng.ac.uk/media/iiif/06PS-0009-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0391)
+3. **[The Fish Market](https://data.ng.ac.uk/media/iiif/01NR-0001-0000-0000/full/!800,800/0/default.jpg)** — Philippe Rousseau (score: 0.0382)
+4. **[Head of Christ Crucified](https://data.ng.ac.uk/media/iiif/0GYD-0009-0000-0000/full/!800,800/0/default.jpg)** — Master of Liesborn (Johann von Soest?) (score: 0.0372)
+5. **[A Trout Stream](https://data.ng.ac.uk/media/iiif/0TBF-0000-0000-0000/full/!800,800/0/default.jpg)** — Philip Reinagle (score: 0.0368)
+6. **[Christ carrying his Cross](https://data.ng.ac.uk/media/iiif/01WK-0001-0000-0000/full/!800,800/0/default.jpg)** — Giampietrino (score: 0.0367)
+7. **[Cenotaph to the Memory of Sir Joshua Reynolds](https://data.ng.ac.uk/media/iiif/0GEV-0009-0000-0000/full/!800,800/0/default.jpg)** — John Constable (score: 0.0364)
+8. **[Pietà](https://data.ng.ac.uk/media/iiif/02WN-0001-0000-0000/full/!800,800/0/default.jpg)** — Rogier van der Weyden (score: 0.0360)
+9. **[The Agony in the Garden](https://data.ng.ac.uk/media/iiif/00TH-0001-0000-0000/full/!800,800/0/default.jpg)** — Garofalo (score: 0.0355)
+10. **[The Entombment](https://data.ng.ac.uk/media/iiif/00WG-0001-0000-0000/full/!800,800/0/default.jpg)** — Dirk Bouts (score: 0.0342)
+
+**VAD (colour mood)**
+
+1. **[Men of the Docks](https://data.ng.ac.uk/media/iiif/067P-0009-0000-0000/full/!800,800/0/default.jpg)** — George Bellows (score: 1.0185)
+2. **[Portrait of Philips Lucasz.](https://data.ng.ac.uk/media/iiif/019R-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 1.0237)
+3. **[Manod Slate Tablet](https://data.ng.ac.uk/media/iiif/0N96-000B-0000-0000/full/!800,800/0/default.jpg)** — Jeremy Deller (score: 1.0446)
+4. **[The Castle of Muiden in Winter](https://data.ng.ac.uk/media/iiif/01ZH-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Beerstraaten (score: 1.0450)
+5. **[The Museum at Le Havre](https://data.ng.ac.uk/media/iiif/0731-0009-0000-0000/full/!800,800/0/default.jpg)** — Claude Monet (score: 1.0512)
+6. **[La Terrasse at Vasouy, The Garden](https://data.ng.ac.uk/media/iiif/02UA-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 1.0516)
+7. **[The Battle of Jemappes](https://data.ng.ac.uk/media/iiif/02K9-0001-0000-0000/full/!800,800/0/default.jpg)** — Emile-Jean-Horace Vernet (score: 1.0593)
+8. **[The Gare St-Lazare](https://data.ng.ac.uk/media/iiif/0YT8-000B-0000-0000/full/!800,800/0/default.jpg)** — Claude Monet (score: 1.0654)
+9. **[La Terrasse at Vasouy, The Lunch](https://data.ng.ac.uk/media/iiif/02ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 1.0803)
+10. **[Bust Portrait of Andrea Mantegna](https://data.ng.ac.uk/media/iiif/01P2-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian (score: 1.0841)
+
+**Combined (RRF)**
+
+1. **[Rising Tide, Coast of Penmarch](https://data.ng.ac.uk/media/iiif/0GPR-0009-0000-0000/full/!800,800/0/default.jpg)** — Louis Duveau (score: 0.0213)
+2. **[A View of Delft after the Explosion of 1654](https://data.ng.ac.uk/media/iiif/00VT-0001-0000-0000/full/!800,800/0/default.jpg)** — Egbert van der Poel (score: 0.0192)
+3. **[Fishermen carrying a Drowned Man](https://data.ng.ac.uk/media/iiif/02BC-0001-0000-0000/full/!800,800/0/default.jpg)** — Jozef Israëls (score: 0.0179)
+4. **[The Castle of Muiden in Winter](https://data.ng.ac.uk/media/iiif/01ZH-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Beerstraaten (score: 0.0177)
+5. **[The Interior of a Barn with Two Peasants](https://data.ng.ac.uk/media/iiif/02E8-0001-0000-0000/full/!800,800/0/default.jpg)** — Isack van Ostade (score: 0.0172)
+6. **[Men of the Docks](https://data.ng.ac.uk/media/iiif/067P-0009-0000-0000/full/!800,800/0/default.jpg)** — George Bellows (score: 0.0172)
+7. **[The Lamentation over the Dead Christ](https://data.ng.ac.uk/media/iiif/06PS-0009-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0171)
+8. **[Bust Portrait of Andrea Mantegna](https://data.ng.ac.uk/media/iiif/01P2-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian (score: 0.0171)
+9. **[The Lamentation at the Foot of the Cross](https://data.ng.ac.uk/media/iiif/01UJ-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Domenico Tiepolo (score: 0.0168)
+10. **[Portrait of Philips Lucasz.](https://data.ng.ac.uk/media/iiif/019R-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0166)
+
+### "mild boredom"
+
+**CLIP (subject & style)**
+
+1. **[The Baron de Besenval in his Salon](https://data.ng.ac.uk/media/iiif/02LP-0001-0000-0000/full/!800,800/0/default.jpg)** — Henri-Pierre Danloux (score: 0.0211)
+2. **[Portrait of Johann the Steadfast](https://data.ng.ac.uk/media/iiif/0LH2-000A-0000-0000/full/!800,800/0/default.jpg)** — Lucas Cranach the Elder (score: 0.0194)
+3. **[Saint Jerome](https://data.ng.ac.uk/media/iiif/0EEF-000B-0000-0000/full/!800,800/0/default.jpg)** — Jusepe de Ribera (score: 0.0181)
+4. **[Head of a Man in Blue](https://data.ng.ac.uk/media/iiif/0G53-0009-0000-0000/full/!800,800/0/default.jpg)** — Giacomo Francesco Cipper (score: 0.0163)
+5. **[Young Ladies on the Banks of the Seine (Summer)](https://data.ng.ac.uk/media/iiif/02LV-0001-0000-0000/full/!800,800/0/default.jpg)** — Gustave Courbet (score: 0.0159)
+6. **[Portrait of François Langlois](https://data.ng.ac.uk/media/iiif/0GUB-0009-0000-0000/full/!800,800/0/default.jpg)** — Anthony van Dyck (score: 0.0158)
+7. **[Mountain Landscape with Narcissus](https://data.ng.ac.uk/media/iiif/02BG-0001-0000-0000/full/!800,800/0/default.jpg)** — Jacob Pynas (score: 0.0155)
+8. **[A Study of an Elderly Man in a Cap](https://data.ng.ac.uk/media/iiif/02WH-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0148)
+9. **[A Dead Soldier](https://data.ng.ac.uk/media/iiif/0279-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian (score: 0.0145)
+10. **[The Triumph of Silenus](https://data.ng.ac.uk/media/iiif/0FBH-0009-0000-0000/full/!800,800/0/default.jpg)** — Nicolas Poussin (score: 0.0142)
+
+**VAD (colour mood)**
+
+1. **[Portrait of Philips Lucasz.](https://data.ng.ac.uk/media/iiif/019R-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.5014)
+2. **[Men of the Docks](https://data.ng.ac.uk/media/iiif/067P-0009-0000-0000/full/!800,800/0/default.jpg)** — George Bellows (score: 0.5074)
+3. **[La Terrasse at Vasouy, The Garden](https://data.ng.ac.uk/media/iiif/02UA-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 0.5177)
+4. **[The Museum at Le Havre](https://data.ng.ac.uk/media/iiif/0731-0009-0000-0000/full/!800,800/0/default.jpg)** — Claude Monet (score: 0.5183)
+5. **[The Battle of Jemappes](https://data.ng.ac.uk/media/iiif/02K9-0001-0000-0000/full/!800,800/0/default.jpg)** — Emile-Jean-Horace Vernet (score: 0.5247)
+6. **[Manod Slate Tablet](https://data.ng.ac.uk/media/iiif/0N96-000B-0000-0000/full/!800,800/0/default.jpg)** — Jeremy Deller (score: 0.5447)
+7. **[La Terrasse at Vasouy, The Lunch](https://data.ng.ac.uk/media/iiif/02ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 0.5521)
+8. **[Winter Landscape](https://data.ng.ac.uk/media/iiif/07EI-0009-0000-0000/full/!800,800/0/default.jpg)** — Caspar David Friedrich (score: 0.5561)
+9. **[The Castle of Muiden in Winter](https://data.ng.ac.uk/media/iiif/01ZH-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Beerstraaten (score: 0.5562)
+10. **[A Shipping Scene with a Dutch Yacht firing a Salute](https://data.ng.ac.uk/media/iiif/0MG4-000A-0000-0000/full/!800,800/0/default.jpg)** — Jan van de Cappelle (score: 0.5729)
+
+**Combined (RRF)**
+
+1. **[Winter](https://data.ng.ac.uk/media/iiif/01P3-0001-0000-0000/full/!800,800/0/default.jpg)** — David Teniers the Younger (score: 0.0229)
+2. **[Portrait of Philips Lucasz.](https://data.ng.ac.uk/media/iiif/019R-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0199)
+3. **[A Picnic](https://data.ng.ac.uk/media/iiif/02C7-0001-0000-0000/full/!800,800/0/default.jpg)** — Francisco de Goya (score: 0.0174)
+4. **[Men of the Docks](https://data.ng.ac.uk/media/iiif/067P-0009-0000-0000/full/!800,800/0/default.jpg)** — George Bellows (score: 0.0172)
+5. **[La Terrasse at Vasouy, The Garden](https://data.ng.ac.uk/media/iiif/02UA-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 0.0169)
+6. **[The Baron de Besenval in his Salon](https://data.ng.ac.uk/media/iiif/02LP-0001-0000-0000/full/!800,800/0/default.jpg)** — Henri-Pierre Danloux (score: 0.0168)
+7. **[Portrait of Cornelis van Someren](https://data.ng.ac.uk/media/iiif/01T7-0001-0000-0000/full/!800,800/0/default.jpg)** — Aelbert Cuyp (score: 0.0168)
+8. **[A Landscape with a High Dune and Peasants on a Road](https://data.ng.ac.uk/media/iiif/01D0-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Wijnants (score: 0.0166)
+9. **[The Museum at Le Havre](https://data.ng.ac.uk/media/iiif/0731-0009-0000-0000/full/!800,800/0/default.jpg)** — Claude Monet (score: 0.0166)
+10. **[Portrait of Johann the Steadfast](https://data.ng.ac.uk/media/iiif/0LH2-000A-0000-0000/full/!800,800/0/default.jpg)** — Lucas Cranach the Elder (score: 0.0166)
+
+### "frightening"
+
+**CLIP (subject & style)**
+
+1. **[An Old Woman ('The Ugly Duchess')](https://data.ng.ac.uk/media/iiif/0DOM-000B-0000-0000/full/!800,800/0/default.jpg)** — Quinten Massys (score: 0.0249)
+2. **[A Scene from 'The Forcibly Bewitched'](https://data.ng.ac.uk/media/iiif/01JO-0001-0000-0000/full/!800,800/0/default.jpg)** — Francisco de Goya (score: 0.0188)
+3. **[A Boy and a Girl with a Cat and an Eel](https://data.ng.ac.uk/media/iiif/03SP-0001-0000-0000/full/!800,800/0/default.jpg)** — Judith Leyster (score: 0.0185)
+4. **[Saint Peter](https://data.ng.ac.uk/media/iiif/01ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — El Greco (score: 0.0175)
+5. **[Young Man holding a Skull (Vanitas)](https://data.ng.ac.uk/media/iiif/0LG2-000A-0000-0000/full/!800,800/0/default.jpg)** — Frans Hals (score: 0.0171)
+6. **[The Vision of Father Simón](https://data.ng.ac.uk/media/iiif/01T9-0001-0000-0000/full/!800,800/0/default.jpg)** — Francisco Ribalta (score: 0.0153)
+7. **[Seated Woman](https://data.ng.ac.uk/media/iiif/020Q-0001-0000-0000/full/!800,800/0/default.jpg)** — Camille Corot (score: 0.0148)
+8. **[An Allegory of Prudence](https://data.ng.ac.uk/media/iiif/0LVA-000A-0000-0000/full/!800,800/0/default.jpg)** — Titian (score: 0.0109)
+9. **[The Soul of Saint Bertin carried up to God](https://data.ng.ac.uk/media/iiif/023O-0001-0000-0000/full/!800,800/0/default.jpg)** — Simon Marmion (score: 0.0103)
+10. **[Head of a Man in Blue](https://data.ng.ac.uk/media/iiif/0G53-0009-0000-0000/full/!800,800/0/default.jpg)** — Giacomo Francesco Cipper (score: 0.0101)
+
+**VAD (colour mood)**
+
+1. **[Subject Composition](https://data.ng.ac.uk/media/iiif/03AQ-0001-0000-0000/full/!800,800/0/default.jpg)** — Adolphe Monticelli (score: 1.2486)
+2. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/0P56-000B-0000-0000/full/!800,800/0/default.jpg)** — Jean Bellegambe (score: 1.2487)
+3. **[A Rocky Landscape with an Ox-cart](https://data.ng.ac.uk/media/iiif/01M9-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Both (score: 1.2487)
+4. **[The Dormition of the Virgin](https://data.ng.ac.uk/media/iiif/0G9I-0009-0000-0000/full/!800,800/0/default.jpg)** — Master of the Stams Crucifixion (score: 1.2488)
+5. **[Francesco Albani (?)](https://data.ng.ac.uk/media/iiif/0232-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Cariani (score: 1.2488)
+6. **[Flowers in a Vase](https://data.ng.ac.uk/media/iiif/0ZVQ-0009-0000-0000/full/!800,800/0/default.jpg)** — Paulus Theodorus van Brussel (score: 1.2489)
+7. **[Saint Peter Martyr and a Bishop Saint (Saint Evasio?)](https://data.ng.ac.uk/media/iiif/023B-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Martino Spanzotti (score: 1.2490)
+8. **[Still Life: Pewter and Silver Vessels and a Crab](https://data.ng.ac.uk/media/iiif/0316-0001-0000-0000/full/!800,800/0/default.jpg)** — Willem Claesz. Heda (score: 1.2490)
+9. **[The Rape of the Sabines (before the signal)](https://data.ng.ac.uk/media/iiif/01UO-0001-0000-0000/full/!800,800/0/default.jpg)** — Domenico Morone (score: 1.2491)
+10. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/0GXN-000B-0000-0000/full/!800,800/0/default.jpg)** — Masaccio (score: 1.2492)
+
+**Combined (RRF)**
+
+1. **[Young Man holding a Skull (Vanitas)](https://data.ng.ac.uk/media/iiif/0LG2-000A-0000-0000/full/!800,800/0/default.jpg)** — Frans Hals (score: 0.0224)
+2. **[Portrait of a girl from the Habsburg family](https://data.ng.ac.uk/media/iiif/0JVQ-0009-0000-0000/full/!800,800/0/default.jpg)** — Jakob Seisenegger (score: 0.0208)
+3. **[Subject Composition](https://data.ng.ac.uk/media/iiif/03AQ-0001-0000-0000/full/!800,800/0/default.jpg)** — Adolphe Monticelli (score: 0.0207)
+4. **[An Old Woman ('The Ugly Duchess')](https://data.ng.ac.uk/media/iiif/0DOM-000B-0000-0000/full/!800,800/0/default.jpg)** — Quinten Massys (score: 0.0177)
+5. **[Saint Peter Martyr and a Bishop Saint (Saint Evasio?)](https://data.ng.ac.uk/media/iiif/023B-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Martino Spanzotti (score: 0.0171)
+6. **[Saint Peter](https://data.ng.ac.uk/media/iiif/01ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — El Greco (score: 0.0171)
+7. **[A Boy and a Girl with a Cat and an Eel](https://data.ng.ac.uk/media/iiif/03SP-0001-0000-0000/full/!800,800/0/default.jpg)** — Judith Leyster (score: 0.0169)
+8. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/0P56-000B-0000-0000/full/!800,800/0/default.jpg)** — Jean Bellegambe (score: 0.0168)
+9. **[Francesco Albani (?)](https://data.ng.ac.uk/media/iiif/0232-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Cariani (score: 0.0167)
+10. **[A Scene from 'The Forcibly Bewitched'](https://data.ng.ac.uk/media/iiif/01JO-0001-0000-0000/full/!800,800/0/default.jpg)** — Francisco de Goya (score: 0.0167)
+
+## After: description-text VAD added as a third ranker, fused via generalized RRF
+
+Change: added description_rank.py, a third independent ranker scoring each painting's curatorial short_description text through the same NRC-VAD lexicon used for search queries. rrf_search.py was generalized from exactly 2 rankers to any number, defaulting to all three (CLIP + colour + description) for Combined mode - CLIP and Colour mode on their own are unchanged. Result: "The Man of Sorrows" confirmed excluded by description text alone (rank 1579/2530 for "joy"), and Combined mode's "joy" results are now free of any crucifixion/lamentation imagery, dominated instead by Virgin and Child / Coronation / Ascension themed works.
+
+### "joy"
+
+**CLIP (subject & style)**
+
+1. **[The Virgin and Child with a Shoot of Olive](https://data.ng.ac.uk/media/iiif/02B0-0001-0000-0000/full/!800,800/0/default.jpg)** — Andrea Previtali (score: 0.0268)
+2. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/06ZU-0009-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo di Credi (score: 0.0258)
+3. **[The Virgin and Child with Four Angels](https://data.ng.ac.uk/media/iiif/02ZV-0001-0000-0000/full/!800,800/0/default.jpg)** — Ugolino di Nerio (score: 0.0245)
+4. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/01XV-0001-0000-0000/full/!800,800/0/default.jpg)** — Bernardino Luini (score: 0.0233)
+5. **[The Virgin and Child with Saints](https://data.ng.ac.uk/media/iiif/0F4F-0009-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Martini da Udine (score: 0.0232)
+6. **[The Madonna and Child](https://data.ng.ac.uk/media/iiif/00T5-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Antonio Sogliani (score: 0.0231)
+7. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/030B-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian, Florentine (score: 0.0231)
+8. **[The Quaratesi Madonna](https://data.ng.ac.uk/media/iiif/0T8H-0000-0000-0000/full/!800,800/0/default.jpg)** — Gentile da Fabriano (score: 0.0230)
+9. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/0GXN-000B-0000-0000/full/!800,800/0/default.jpg)** — Masaccio (score: 0.0229)
+10. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/01RW-0001-0000-0000/full/!800,800/0/default.jpg)** — Marco d'Oggiono (score: 0.0228)
+
+**VAD (colour mood)**
+
+1. **[Saint Mary Magdalene](https://data.ng.ac.uk/media/iiif/01Y1-0001-0000-0000/full/!800,800/0/default.jpg)** — Master of the Palazzo Venezia Madonna (score: 0.4467)
+2. **[Sunflowers](https://data.ng.ac.uk/media/iiif/06QG-0009-0000-0000/full/!800,800/0/default.jpg)** — Vincent van Gogh (score: 0.4777)
+3. **[Saint Peter Damian](https://data.ng.ac.uk/media/iiif/0T5Y-0000-0000-0000/full/!800,800/0/default.jpg)** — Jacopo di Cione (score: 0.4870)
+4. **[Men with an Ox and Cattle by a Pool](https://data.ng.ac.uk/media/iiif/02AB-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Both (score: 0.4982)
+5. **[A Man with a Wreath](https://data.ng.ac.uk/media/iiif/01RL-0001-0000-0000/full/!800,800/0/default.jpg)** — Greco-Roman (score: 0.5167)
+6. **[The Baptism of Christ](https://data.ng.ac.uk/media/iiif/02XQ-0001-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo Monaco (score: 0.5230)
+7. **[In the Bibémus Quarry](https://data.ng.ac.uk/media/iiif/0VOC-000B-0000-0000/full/!800,800/0/default.jpg)** — Paul Cezanne (score: 0.5310)
+8. **[Saint Benedict admitting Saints into the Order](https://data.ng.ac.uk/media/iiif/0BEI-000B-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo Monaco (score: 0.5508)
+9. **[Cows at a Pool](https://data.ng.ac.uk/media/iiif/01NT-0001-0000-0000/full/!800,800/0/default.jpg)** — Narcisse-Virgilio Diaz de la Peña (score: 0.5611)
+10. **[Spandrel Angels](https://data.ng.ac.uk/media/iiif/02B9-0001-0000-0000/full/!800,800/0/default.jpg)** — Ugolino di Nerio (score: 0.5648)
+
+**Combined (RRF)**
+
+1. **[The Ascension: Upper Tier Panel](https://data.ng.ac.uk/media/iiif/01W0-0001-0000-0000/full/!800,800/0/default.jpg)** — Jacopo di Cione (score: 0.0264)
+2. **[High Tide](https://data.ng.ac.uk/media/iiif/0NGY-000A-0000-0000/full/!800,800/0/default.jpg)** — Jan Toorop (score: 0.0237)
+3. **[Portrait of Charlotte Cuhrt](https://data.ng.ac.uk/media/iiif/0LZA-000B-0000-0000/full/!800,800/0/default.jpg)** — Max Pechstein (score: 0.0234)
+4. **[The Virgin and Child with Angels](https://data.ng.ac.uk/media/iiif/03IP-0001-0000-0000/full/!800,800/0/default.jpg)** — Benozzo Gozzoli (score: 0.0226)
+5. **[Sunflowers](https://data.ng.ac.uk/media/iiif/06QG-0009-0000-0000/full/!800,800/0/default.jpg)** — Vincent van Gogh (score: 0.0225)
+6. **[Men with an Ox and Cattle by a Pool](https://data.ng.ac.uk/media/iiif/02AB-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Both (score: 0.0219)
+7. **[The Coronation of the Virgin](https://data.ng.ac.uk/media/iiif/01J7-0001-0000-0000/full/!800,800/0/default.jpg)** — Lorenzo Monaco (score: 0.0218)
+8. **[The Assumption of the Virgin](https://data.ng.ac.uk/media/iiif/01RG-0001-0000-0000/full/!800,800/0/default.jpg)** — Matteo di Giovanni (score: 0.0211)
+9. **[The Virgin and Child with Four Angels](https://data.ng.ac.uk/media/iiif/02ZV-0001-0000-0000/full/!800,800/0/default.jpg)** — Ugolino di Nerio (score: 0.0208)
+10. **[Saint Mary Magdalene](https://data.ng.ac.uk/media/iiif/01Y1-0001-0000-0000/full/!800,800/0/default.jpg)** — Master of the Palazzo Venezia Madonna (score: 0.0204)
+
+### "sorrow"
+
+**CLIP (subject & style)**
+
+1. **[The Interior of a Barn with Two Peasants](https://data.ng.ac.uk/media/iiif/02E8-0001-0000-0000/full/!800,800/0/default.jpg)** — Isack van Ostade (score: 0.0427)
+2. **[The Lamentation over the Dead Christ](https://data.ng.ac.uk/media/iiif/06PS-0009-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0391)
+3. **[The Fish Market](https://data.ng.ac.uk/media/iiif/01NR-0001-0000-0000/full/!800,800/0/default.jpg)** — Philippe Rousseau (score: 0.0382)
+4. **[Head of Christ Crucified](https://data.ng.ac.uk/media/iiif/0GYD-0009-0000-0000/full/!800,800/0/default.jpg)** — Master of Liesborn (Johann von Soest?) (score: 0.0372)
+5. **[A Trout Stream](https://data.ng.ac.uk/media/iiif/0TBF-0000-0000-0000/full/!800,800/0/default.jpg)** — Philip Reinagle (score: 0.0368)
+6. **[Christ carrying his Cross](https://data.ng.ac.uk/media/iiif/01WK-0001-0000-0000/full/!800,800/0/default.jpg)** — Giampietrino (score: 0.0367)
+7. **[Cenotaph to the Memory of Sir Joshua Reynolds](https://data.ng.ac.uk/media/iiif/0GEV-0009-0000-0000/full/!800,800/0/default.jpg)** — John Constable (score: 0.0364)
+8. **[Pietà](https://data.ng.ac.uk/media/iiif/02WN-0001-0000-0000/full/!800,800/0/default.jpg)** — Rogier van der Weyden (score: 0.0360)
+9. **[The Agony in the Garden](https://data.ng.ac.uk/media/iiif/00TH-0001-0000-0000/full/!800,800/0/default.jpg)** — Garofalo (score: 0.0355)
+10. **[The Entombment](https://data.ng.ac.uk/media/iiif/00WG-0001-0000-0000/full/!800,800/0/default.jpg)** — Dirk Bouts (score: 0.0342)
+
+**VAD (colour mood)**
+
+1. **[Men of the Docks](https://data.ng.ac.uk/media/iiif/067P-0009-0000-0000/full/!800,800/0/default.jpg)** — George Bellows (score: 1.0185)
+2. **[Portrait of Philips Lucasz.](https://data.ng.ac.uk/media/iiif/019R-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 1.0237)
+3. **[Manod Slate Tablet](https://data.ng.ac.uk/media/iiif/0N96-000B-0000-0000/full/!800,800/0/default.jpg)** — Jeremy Deller (score: 1.0446)
+4. **[The Castle of Muiden in Winter](https://data.ng.ac.uk/media/iiif/01ZH-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Beerstraaten (score: 1.0450)
+5. **[The Museum at Le Havre](https://data.ng.ac.uk/media/iiif/0731-0009-0000-0000/full/!800,800/0/default.jpg)** — Claude Monet (score: 1.0512)
+6. **[La Terrasse at Vasouy, The Garden](https://data.ng.ac.uk/media/iiif/02UA-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 1.0516)
+7. **[The Battle of Jemappes](https://data.ng.ac.uk/media/iiif/02K9-0001-0000-0000/full/!800,800/0/default.jpg)** — Emile-Jean-Horace Vernet (score: 1.0593)
+8. **[The Gare St-Lazare](https://data.ng.ac.uk/media/iiif/0YT8-000B-0000-0000/full/!800,800/0/default.jpg)** — Claude Monet (score: 1.0654)
+9. **[La Terrasse at Vasouy, The Lunch](https://data.ng.ac.uk/media/iiif/02ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 1.0803)
+10. **[Bust Portrait of Andrea Mantegna](https://data.ng.ac.uk/media/iiif/01P2-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian (score: 1.0841)
+
+**Combined (RRF)**
+
+1. **[An Old Woman with a Rosary](https://data.ng.ac.uk/media/iiif/0G5J-0009-0000-0000/full/!800,800/0/default.jpg)** — Paul Cezanne (score: 0.0273)
+2. **[A Dead Soldier](https://data.ng.ac.uk/media/iiif/0279-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian (score: 0.0267)
+3. **[Winter](https://data.ng.ac.uk/media/iiif/01P3-0001-0000-0000/full/!800,800/0/default.jpg)** — David Teniers the Younger (score: 0.0251)
+4. **[The Lamentation over the Dead Christ](https://data.ng.ac.uk/media/iiif/06PS-0009-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0232)
+5. **[Rising Tide, Coast of Penmarch](https://data.ng.ac.uk/media/iiif/0GPR-0009-0000-0000/full/!800,800/0/default.jpg)** — Louis Duveau (score: 0.0225)
+6. **[The Shore at Egmond-aan-Zee](https://data.ng.ac.uk/media/iiif/02VL-0001-0000-0000/full/!800,800/0/default.jpg)** — Jacob van Ruisdael (score: 0.0222)
+7. **[Ruins in a Dune Landscape](https://data.ng.ac.uk/media/iiif/00ST-0001-0000-0000/full/!800,800/0/default.jpg)** — Jacob van Ruisdael (score: 0.0220)
+8. **[The Entombment](https://data.ng.ac.uk/media/iiif/00WG-0001-0000-0000/full/!800,800/0/default.jpg)** — Dirk Bouts (score: 0.0219)
+9. **[The Castle of Muiden in Winter](https://data.ng.ac.uk/media/iiif/01ZH-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Beerstraaten (score: 0.0218)
+10. **[View of Lac Léman](https://data.ng.ac.uk/media/iiif/033Q-0001-0000-0000/full/!800,800/0/default.jpg)** — Gustave Courbet (score: 0.0218)
+
+### "mild boredom"
+
+**CLIP (subject & style)**
+
+1. **[The Baron de Besenval in his Salon](https://data.ng.ac.uk/media/iiif/02LP-0001-0000-0000/full/!800,800/0/default.jpg)** — Henri-Pierre Danloux (score: 0.0211)
+2. **[Portrait of Johann the Steadfast](https://data.ng.ac.uk/media/iiif/0LH2-000A-0000-0000/full/!800,800/0/default.jpg)** — Lucas Cranach the Elder (score: 0.0194)
+3. **[Saint Jerome](https://data.ng.ac.uk/media/iiif/0EEF-000B-0000-0000/full/!800,800/0/default.jpg)** — Jusepe de Ribera (score: 0.0181)
+4. **[Head of a Man in Blue](https://data.ng.ac.uk/media/iiif/0G53-0009-0000-0000/full/!800,800/0/default.jpg)** — Giacomo Francesco Cipper (score: 0.0163)
+5. **[Young Ladies on the Banks of the Seine (Summer)](https://data.ng.ac.uk/media/iiif/02LV-0001-0000-0000/full/!800,800/0/default.jpg)** — Gustave Courbet (score: 0.0159)
+6. **[Portrait of François Langlois](https://data.ng.ac.uk/media/iiif/0GUB-0009-0000-0000/full/!800,800/0/default.jpg)** — Anthony van Dyck (score: 0.0158)
+7. **[Mountain Landscape with Narcissus](https://data.ng.ac.uk/media/iiif/02BG-0001-0000-0000/full/!800,800/0/default.jpg)** — Jacob Pynas (score: 0.0155)
+8. **[A Study of an Elderly Man in a Cap](https://data.ng.ac.uk/media/iiif/02WH-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0148)
+9. **[A Dead Soldier](https://data.ng.ac.uk/media/iiif/0279-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian (score: 0.0145)
+10. **[The Triumph of Silenus](https://data.ng.ac.uk/media/iiif/0FBH-0009-0000-0000/full/!800,800/0/default.jpg)** — Nicolas Poussin (score: 0.0142)
+
+**VAD (colour mood)**
+
+1. **[Portrait of Philips Lucasz.](https://data.ng.ac.uk/media/iiif/019R-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.5014)
+2. **[Men of the Docks](https://data.ng.ac.uk/media/iiif/067P-0009-0000-0000/full/!800,800/0/default.jpg)** — George Bellows (score: 0.5074)
+3. **[La Terrasse at Vasouy, The Garden](https://data.ng.ac.uk/media/iiif/02UA-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 0.5177)
+4. **[The Museum at Le Havre](https://data.ng.ac.uk/media/iiif/0731-0009-0000-0000/full/!800,800/0/default.jpg)** — Claude Monet (score: 0.5183)
+5. **[The Battle of Jemappes](https://data.ng.ac.uk/media/iiif/02K9-0001-0000-0000/full/!800,800/0/default.jpg)** — Emile-Jean-Horace Vernet (score: 0.5247)
+6. **[Manod Slate Tablet](https://data.ng.ac.uk/media/iiif/0N96-000B-0000-0000/full/!800,800/0/default.jpg)** — Jeremy Deller (score: 0.5447)
+7. **[La Terrasse at Vasouy, The Lunch](https://data.ng.ac.uk/media/iiif/02ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — Edouard Vuillard (score: 0.5521)
+8. **[Winter Landscape](https://data.ng.ac.uk/media/iiif/07EI-0009-0000-0000/full/!800,800/0/default.jpg)** — Caspar David Friedrich (score: 0.5561)
+9. **[The Castle of Muiden in Winter](https://data.ng.ac.uk/media/iiif/01ZH-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Beerstraaten (score: 0.5562)
+10. **[A Shipping Scene with a Dutch Yacht firing a Salute](https://data.ng.ac.uk/media/iiif/0MG4-000A-0000-0000/full/!800,800/0/default.jpg)** — Jan van de Cappelle (score: 0.5729)
+
+**Combined (RRF)**
+
+1. **[Winter](https://data.ng.ac.uk/media/iiif/01P3-0001-0000-0000/full/!800,800/0/default.jpg)** — David Teniers the Younger (score: 0.0381)
+2. **[A Dead Soldier](https://data.ng.ac.uk/media/iiif/0279-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian (score: 0.0309)
+3. **[The Labours of the Months: January](https://data.ng.ac.uk/media/iiif/02RZ-0001-0000-0000/full/!800,800/0/default.jpg)** — Italian, Venetian (score: 0.0264)
+4. **[A Stream in the Dunes, with Two Bathers](https://data.ng.ac.uk/media/iiif/01PP-0001-0000-0000/full/!800,800/0/default.jpg)** — Philips Wouwerman (score: 0.0233)
+5. **[Curtain, Jug and Dish of Fruit](https://data.ng.ac.uk/media/iiif/00BB-000B-0000-0000/full/!800,800/0/default.jpg)** — Paul Cezanne (score: 0.0232)
+6. **[The Shore at Egmond-aan-Zee](https://data.ng.ac.uk/media/iiif/02VL-0001-0000-0000/full/!800,800/0/default.jpg)** — Jacob van Ruisdael (score: 0.0218)
+7. **[Portrait of Philips Lucasz.](https://data.ng.ac.uk/media/iiif/019R-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0215)
+8. **[A Farmyard](https://data.ng.ac.uk/media/iiif/01TI-0001-0000-0000/full/!800,800/0/default.jpg)** — Isack van Ostade (score: 0.0211)
+9. **[The Castle of Muiden in Winter](https://data.ng.ac.uk/media/iiif/01ZH-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Beerstraaten (score: 0.0195)
+10. **[View of Lac Léman](https://data.ng.ac.uk/media/iiif/033Q-0001-0000-0000/full/!800,800/0/default.jpg)** — Gustave Courbet (score: 0.0194)
+
+### "frightening"
+
+**CLIP (subject & style)**
+
+1. **[An Old Woman ('The Ugly Duchess')](https://data.ng.ac.uk/media/iiif/0DOM-000B-0000-0000/full/!800,800/0/default.jpg)** — Quinten Massys (score: 0.0249)
+2. **[A Scene from 'The Forcibly Bewitched'](https://data.ng.ac.uk/media/iiif/01JO-0001-0000-0000/full/!800,800/0/default.jpg)** — Francisco de Goya (score: 0.0188)
+3. **[A Boy and a Girl with a Cat and an Eel](https://data.ng.ac.uk/media/iiif/03SP-0001-0000-0000/full/!800,800/0/default.jpg)** — Judith Leyster (score: 0.0185)
+4. **[Saint Peter](https://data.ng.ac.uk/media/iiif/01ZB-0001-0000-0000/full/!800,800/0/default.jpg)** — El Greco (score: 0.0175)
+5. **[Young Man holding a Skull (Vanitas)](https://data.ng.ac.uk/media/iiif/0LG2-000A-0000-0000/full/!800,800/0/default.jpg)** — Frans Hals (score: 0.0171)
+6. **[The Vision of Father Simón](https://data.ng.ac.uk/media/iiif/01T9-0001-0000-0000/full/!800,800/0/default.jpg)** — Francisco Ribalta (score: 0.0153)
+7. **[Seated Woman](https://data.ng.ac.uk/media/iiif/020Q-0001-0000-0000/full/!800,800/0/default.jpg)** — Camille Corot (score: 0.0148)
+8. **[An Allegory of Prudence](https://data.ng.ac.uk/media/iiif/0LVA-000A-0000-0000/full/!800,800/0/default.jpg)** — Titian (score: 0.0109)
+9. **[The Soul of Saint Bertin carried up to God](https://data.ng.ac.uk/media/iiif/023O-0001-0000-0000/full/!800,800/0/default.jpg)** — Simon Marmion (score: 0.0103)
+10. **[Head of a Man in Blue](https://data.ng.ac.uk/media/iiif/0G53-0009-0000-0000/full/!800,800/0/default.jpg)** — Giacomo Francesco Cipper (score: 0.0101)
+
+**VAD (colour mood)**
+
+1. **[Subject Composition](https://data.ng.ac.uk/media/iiif/03AQ-0001-0000-0000/full/!800,800/0/default.jpg)** — Adolphe Monticelli (score: 1.2486)
+2. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/0P56-000B-0000-0000/full/!800,800/0/default.jpg)** — Jean Bellegambe (score: 1.2487)
+3. **[A Rocky Landscape with an Ox-cart](https://data.ng.ac.uk/media/iiif/01M9-0001-0000-0000/full/!800,800/0/default.jpg)** — Jan Both (score: 1.2487)
+4. **[The Dormition of the Virgin](https://data.ng.ac.uk/media/iiif/0G9I-0009-0000-0000/full/!800,800/0/default.jpg)** — Master of the Stams Crucifixion (score: 1.2488)
+5. **[Francesco Albani (?)](https://data.ng.ac.uk/media/iiif/0232-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Cariani (score: 1.2488)
+6. **[Flowers in a Vase](https://data.ng.ac.uk/media/iiif/0ZVQ-0009-0000-0000/full/!800,800/0/default.jpg)** — Paulus Theodorus van Brussel (score: 1.2489)
+7. **[Saint Peter Martyr and a Bishop Saint (Saint Evasio?)](https://data.ng.ac.uk/media/iiif/023B-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Martino Spanzotti (score: 1.2490)
+8. **[Still Life: Pewter and Silver Vessels and a Crab](https://data.ng.ac.uk/media/iiif/0316-0001-0000-0000/full/!800,800/0/default.jpg)** — Willem Claesz. Heda (score: 1.2490)
+9. **[The Rape of the Sabines (before the signal)](https://data.ng.ac.uk/media/iiif/01UO-0001-0000-0000/full/!800,800/0/default.jpg)** — Domenico Morone (score: 1.2491)
+10. **[The Virgin and Child](https://data.ng.ac.uk/media/iiif/0GXN-000B-0000-0000/full/!800,800/0/default.jpg)** — Masaccio (score: 1.2492)
+
+**Combined (RRF)**
+
+1. **[A Scene from 'The Forcibly Bewitched'](https://data.ng.ac.uk/media/iiif/01JO-0001-0000-0000/full/!800,800/0/default.jpg)** — Francisco de Goya (score: 0.0262)
+2. **[Dido's Suicide](https://data.ng.ac.uk/media/iiif/01VQ-0001-0000-0000/full/!800,800/0/default.jpg)** — Liberale da Verona (score: 0.0255)
+3. **[Young Man holding a Skull (Vanitas)](https://data.ng.ac.uk/media/iiif/0LG2-000A-0000-0000/full/!800,800/0/default.jpg)** — Frans Hals (score: 0.0243)
+4. **[Christ Crowned with Thorns](https://data.ng.ac.uk/media/iiif/01MP-0001-0000-0000/full/!800,800/0/default.jpg)** — Giovanni Battista Cima da Conegliano (score: 0.0240)
+5. **[The Rape of the Sabines (before the signal)](https://data.ng.ac.uk/media/iiif/01UO-0001-0000-0000/full/!800,800/0/default.jpg)** — Domenico Morone (score: 0.0236)
+6. **[Salome](https://data.ng.ac.uk/media/iiif/01O9-0001-0000-0000/full/!800,800/0/default.jpg)** — Cesare da Sesto (score: 0.0230)
+7. **[Cavalry attacking Infantry](https://data.ng.ac.uk/media/iiif/00XT-0001-0000-0000/full/!800,800/0/default.jpg)** — Philips Wouwerman (score: 0.0224)
+8. **[A Young Man and a Girl playing Cards](https://data.ng.ac.uk/media/iiif/02SF-0001-0000-0000/full/!800,800/0/default.jpg)** — Rembrandt (score: 0.0221)
+9. **[Portrait of a girl from the Habsburg family](https://data.ng.ac.uk/media/iiif/0JVQ-0009-0000-0000/full/!800,800/0/default.jpg)** — Jakob Seisenegger (score: 0.0218)
+10. **[Two Followers of Cadmus devoured by a Dragon](https://data.ng.ac.uk/media/iiif/01Z5-0001-0000-0000/full/!800,800/0/default.jpg)** — Cornelis van Haarlem (score: 0.0218)
+

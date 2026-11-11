@@ -58,7 +58,7 @@ def search():
     elif mode == "rrf":
         ranked, scores = rrf_search.fuse(query)
         pairs = [(uid, scores[uid]) for uid in ranked[:RESULTS_PER_PAGE]]
-        score_label = "fused RRF score (higher = closer match)"
+        score_label = "fused RRF score - CLIP + colour + description (higher = closer match)"
     else:
         return jsonify({"error": f"unknown mode '{mode}'"}), 400
 

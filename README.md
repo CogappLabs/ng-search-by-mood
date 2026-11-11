@@ -47,23 +47,42 @@ Run in order:
    (non-commercial/research use) and unzip it to
    `data/lexicons/nrc-vad-v2.1/NRC-VAD-Lexicon-v2.1/` - `vad_lexicon.py` reads
    `NRC-VAD-Lexicon-v2.1.txt` from there.
+7. `python description_vad.py` — derive a valence/arousal/dominance score per
+   painting from the National Gallery's own curatorial `short_description`
+   text (via the same NRC-VAD lexicon), not the image or its colours. Writes
+   `data/description_vad.parquet`. Paintings with no description (~1.3%) are
+   skipped rather than scored as neutral.
 
-## Three independent search modes
+## Three independent rankers, fused
 
-- `clip_rank.rank_uids(query)` / `rank_with_scores(query)` - CLIP cosine
-  similarity (sees the whole image: subject, style, everything).
+- `clip_rank.rank_uids(query)` / `rank_with_scores(query)` - CLIP, contrastive:
+  scores a painting by its similarity to the query MINUS its similarity to a
+  generic opposite-mood anchor, so a painting that reads as more aligned with
+  the opposite of the query doesn't still rank well just by also having some
+  similarity to the query in isolation. Which NRC-VAD axis to contrast on
+  (valence/arousal/dominance) is picked per query, using whichever axis is
+  most extreme for that query's own lexicon score - "joy" is valence-led, but
+  "boredom" is arousal-led, so it's contrasted against "exciting"/"thrilling"
+  rather than "happy"/"sad".
 - `vad_rank.rank_uids(query)` / `rank_with_scores(query)` - NRC-VAD lexicon
   distance against colour-derived valence/arousal/dominance (colour only,
-  no subject matter). Intensity modifiers ("very", "slightly", and "mild"/
-  "mildly" as deliberate synonyms of "slightly") scale the lexicon score via
-  VADER's booster/dampener logic - see `vad_lexicon.py`.
-- `rrf_search.fuse(query)` - combines the two via Reciprocal Rank Fusion
-  (rank-based, not score-based, since CLIP similarity and VAD distance aren't
-  on comparable scales).
+  no subject matter).
+- `description_rank.rank_uids(query)` / `rank_with_scores(query)` - NRC-VAD
+  lexicon distance against the painting's own curatorial description text -
+  catches cases where the image's colour/style reads one way but the known
+  subject matter reads another (e.g. a devotional "Man of Sorrows" painting
+  scoring moderately well on "joyful" by colour/style alone).
 
-Each is kept deliberately separate (not merged into one scoring function) so
-the interface can offer all three as distinct modes rather than just the
-fused one.
+All three share `vad_lexicon.py` for turning a query into a (valence, arousal,
+dominance) triple, including intensity modifiers ("very", "slightly", and
+"mild"/"mildly" as deliberate synonyms of "slightly") via VADER's
+booster/dampener logic.
+
+`rrf_search.fuse(query)` combines any number of these via Reciprocal Rank
+Fusion (rank-based, not score-based, since similarity and distance scores
+aren't on comparable scales) - defaults to all three. Each ranker is still
+kept as its own independent module (not merged into one scoring function) so
+the interface can offer each as its own mode, not just the fused one.
 
 ## Web interface
 
@@ -71,10 +90,11 @@ fused one.
 python app.py  # http://localhost:5050
 ```
 
-A single search box with a CLIP / colour-VAD / fused (RRF) mode selector,
-calling `/api/search?q=...&mode=clip|vad|rrf`. Frontend is plain HTML/CSS/JS
-in `static/` (no build step). First query in each mode is a bit slower
-(loading the CLIP model/lexicon into memory); subsequent queries are fast.
+A single search box with a CLIP / colour-VAD / fused (RRF, now 3-way) mode
+selector, calling `/api/search?q=...&mode=clip|vad|rrf`. Frontend is plain
+HTML/CSS/JS in `docs/` (no build step - also what GitHub Pages would serve
+directly). First query in each mode is a bit slower (loading the CLIP
+model/lexicons into memory); subsequent queries are fast.
 
 ## Licensing note
 

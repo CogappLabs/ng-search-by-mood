@@ -16,7 +16,7 @@ RUN python -c "import open_clip; open_clip.create_model_and_transforms('ViT-B-32
 # application code - common.py deliberately excluded: it's only used by the
 # local precompute scripts (which need the National Gallery hack API's
 # credentials), not by the deployed search API itself
-COPY clip_rank.py vad_rank.py vad_lexicon.py rrf_search.py app.py ./
+COPY clip_rank.py vad_rank.py description_rank.py vad_lexicon.py rrf_search.py app.py ./
 COPY docs/ docs/
 
 # only the data the API actually reads at request time - not the ~2500
@@ -24,6 +24,7 @@ COPY docs/ docs/
 # National Gallery's own IIIF CDN instead) and not the lexicon's zip/PDFs
 COPY data/paintings_raw.jsonl data/paintings_raw.jsonl
 COPY data/colour_vad.parquet data/colour_vad.parquet
+COPY data/description_vad.parquet data/description_vad.parquet
 COPY data/clip_embeddings.npy data/clip_embeddings.npy
 COPY data/clip_uids.json data/clip_uids.json
 COPY data/lexicons/nrc-vad-v2.1/NRC-VAD-Lexicon-v2.1/NRC-VAD-Lexicon-v2.1.txt \
