@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+.claude/scheduled_tasks.lock
+data/images/
+data/*.npy
+data/*.parquet
+data/*.jsonl
+data/*.json
+# non-commercial/research-only licence - don't redistribute it, just
+# re-download per the README instead
+data/lexicons/

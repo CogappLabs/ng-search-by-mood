@@ -1,0 +1,22 @@
+.venv/
+.git/
+.env
+__pycache__/
+*.pyc
+.DS_Store
+
+# downloaded painting images aren't needed in the container - see Dockerfile
+data/images/
+
+# lexicon extras we don't read (zip, PDFs, unused per-dimension/MWE files)
+data/lexicons/*.zip
+data/lexicons/nrc-vad-v2.1/__MACOSX/
+data/lexicons/nrc-vad-v2.1/NRC-VAD-Lexicon-v2.1/*.pdf
+data/lexicons/nrc-vad-v2.1/NRC-VAD-Lexicon-v2.1/Unigrams/
+data/lexicons/nrc-vad-v2.1/NRC-VAD-Lexicon-v2.1/MWE/
+data/lexicons/nrc-vad-v2.1/NRC-VAD-Lexicon-v2.1/OneFilePerDimension/
+
+# intermediate/log files the container doesn't read
+data/colour_features.parquet
+data/download_failures.txt
+data/embed_failures.txt

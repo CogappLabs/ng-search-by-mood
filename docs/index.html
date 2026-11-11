@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mood Search · National Gallery</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Mood Search</h1>
+    <p class="subtitle">Explore the National Gallery collection by how a painting feels, not just what it shows.</p>
+  </header>
+
+  <form id="search-form">
+    <input
+      id="query"
+      type="text"
+      placeholder="e.g. mild boredom, stormy, quiet solitude&hellip;"
+      autocomplete="off"
+    />
+
+    <div class="mode-select" role="radiogroup" aria-label="Search approach">
+      <label class="mode-option">
+        <input type="radio" name="mode" value="clip" checked />
+        <span class="mode-name">Subject &amp; style</span>
+        <span class="mode-hint">CLIP reads the whole image</span>
+      </label>
+      <label class="mode-option">
+        <input type="radio" name="mode" value="vad" />
+        <span class="mode-name">Colour mood</span>
+        <span class="mode-hint">from brightness &amp; saturation alone</span>
+      </label>
+      <label class="mode-option">
+        <input type="radio" name="mode" value="rrf" />
+        <span class="mode-name">Combined</span>
+        <span class="mode-hint">blends both of the above</span>
+      </label>
+    </div>
+
+    <p id="mode-blurb" class="blurb"></p>
+
+    <button type="submit">Search</button>
+  </form>
+
+  <p id="status"></p>
+
+  <div id="results" class="grid"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
