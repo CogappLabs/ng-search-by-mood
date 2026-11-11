@@ -19,10 +19,13 @@ const BLURBS = {
   clip: `<strong>CLIP</strong> is a machine-learning model trained on hundreds of
     millions of image-and-caption pairs from the internet, learning to place
     pictures and the words that describe them close together in the same
-    mathematical space. Your search words are placed in that same space, and
-    whichever paintings land nearest are shown first. Because it was trained
-    on whole images, it responds to subject matter, composition and style -
-    not just colour.`,
+    mathematical space. Because it was trained on whole images, it responds
+    to subject matter, composition and style - not just colour. Rather than
+    just picking paintings that are close to your search words, this mode
+    also checks each painting against a small set of generically opposite
+    mood words (so a search for "joyful" is weighed against "sorrowful" and
+    similar) - this catches paintings that would otherwise rank well on your
+    words alone despite reading, overall, as the opposite.`,
   vad: `This mode ignores subject matter completely and looks only at colour.
     Each painting's brightness and saturation (from its dominant colour
     swatches) are converted into how pleasant, how calming-or-exciting, and

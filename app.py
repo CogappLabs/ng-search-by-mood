@@ -51,7 +51,7 @@ def search():
     # only the score's MEANING differs (similarity vs distance vs fused rank score)
     if mode == "clip":
         pairs = clip_rank.rank_with_scores(query)[:RESULTS_PER_PAGE]
-        score_label = "CLIP similarity (higher = closer match)"
+        score_label = "CLIP contrastive margin (higher = closer match)"
     elif mode == "vad":
         pairs = vad_rank.rank_with_scores(query)[:RESULTS_PER_PAGE]
         score_label = "VAD distance (lower = closer match)"
