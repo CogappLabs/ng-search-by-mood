@@ -52,6 +52,13 @@ Run in order:
    text (via the same NRC-VAD lexicon), not the image or its colours. Writes
    `data/description_vad.parquet`. Paintings with no description (~1.3%) are
    skipped rather than scored as neutral.
+8. `python export_web_data.py` — reshape everything above into static files
+   the browser can fetch directly (`docs/data/`): a flat binary
+   `embeddings.bin`, `paintings.json` (display fields only - no raw
+   description text, since it's already been pre-scored into numbers), the
+   colour/description VAD tables, the lexicon, and the 6 anchor-word vectors
+   (precomputed here so the browser never embeds anything except the
+   visitor's own query).
 
 ## Three independent rankers, fused
 
@@ -84,17 +91,39 @@ aren't on comparable scales) - defaults to all three. Each ranker is still
 kept as its own independent module (not merged into one scoring function) so
 the interface can offer each as its own mode, not just the fused one.
 
-## Web interface
+## Web interface - fully client-side, no backend
 
-```bash
-python app.py  # http://localhost:5050
-```
+Everything runs in the browser now - `docs/` is the *entire* deployment, and
+GitHub Pages can serve it directly with nothing else to host, deploy or pay
+for. This only works because CLIP's TEXT encoder (the only part that needs
+to run per-query) runs in-browser via Hugging Face's Transformers.js
+(`Xenova/clip-vit-base-patch32`, an ONNX port of the same checkpoint
+`embed_images.py` uses) - every painting's IMAGE embedding was already
+precomputed once in Python and is just fetched as static data
+(`docs/data/embeddings.bin`). The VAD-lexicon rankers and RRF fusion involve
+no model at all, just arithmetic, and are plain JS ports of their Python
+originals:
 
-A single search box with a CLIP / colour-VAD / fused (RRF, now 3-way) mode
-selector, calling `/api/search?q=...&mode=clip|vad|rrf`. Frontend is plain
-HTML/CSS/JS in `docs/` (no build step - also what GitHub Pages would serve
-directly). First query in each mode is a bit slower (loading the CLIP
-model/lexicons into memory); subsequent queries are fast.
+- `docs/vad-lexicon.js` ↔ `vad_lexicon.py`
+- `docs/clip-rank.js` ↔ `clip_rank.py`
+- `docs/vad-rank.js` (colour) + `docs/description-rank.js` ↔ `vad_rank.py` / `description_rank.py`
+- `docs/rrf.js` ↔ `rrf_search.py`
+- `docs/app.js` - wires these together; no more `/api/search`, no `API_BASE`
+
+**Known limitation** (recorded in `MILESTONES.md`): this ONNX model and
+`open_clip` (used to precompute the image embeddings) are two different
+implementations of "the same" checkpoint, so results are thematically
+similar but not numerically identical to the Python pipeline's.
+
+To preview locally, serve `docs/` with any static file server, e.g.
+`python -m http.server --directory docs`, or just open `docs/index.html`
+via a local server of your choice (not `file://` - the browser needs to
+`fetch()` the data files).
+
+`app.py`/`Dockerfile` are no longer part of the deploy path (that was the
+Cloud Run/AWS-backed plan before this rewrite) - kept only as the original
+server-based reference implementation, not required to run or deploy the
+interface.
 
 ## Licensing note
 
