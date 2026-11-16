@@ -63,11 +63,18 @@ const BLURBS = {
     across them.`,
 };
 
-// what each mode's score means, shown next to the result count
+// what each mode's score means, shown next to the result count. CLIP's
+// label depends on whether the query was recognised: when it wasn't,
+// clip-rank.js falls back to plain similarity rather than a contrastive
+// margin (see its own comments), and the label says so explicitly rather
+// than claiming a margin that wasn't actually computed.
 const SCORE_LABELS = {
-  clip: "CLIP contrastive margin (higher = closer match)",
-  vad: "VAD distance (lower = closer match)",
-  rrf: "fused RRF score - CLIP + colour + description (higher = closer match)",
+  clip: (recognized) =>
+    recognized
+      ? "CLIP contrastive margin (higher = closer match)"
+      : "CLIP similarity only - no mood words recognised to contrast against (higher = closer match)",
+  vad: () => "VAD distance (lower = closer match)",
+  rrf: () => "fused RRF score - CLIP + colour + description (higher = closer match)",
 };
 
 // A search runs all three modes at once and keeps every mode's results
@@ -156,7 +163,7 @@ async function renderCachedResults() {
   if (!_lastResults) return;
   const mode = form.querySelector('input[name="mode"]:checked').value;
   const pairs = _lastResults[mode].slice(0, RESULTS_PER_PAGE);
-  const scoreLabel = SCORE_LABELS[mode];
+  const scoreLabel = SCORE_LABELS[mode](_lastResults.recognized);
 
   if (pairs.length === 0) {
     statusEl.textContent = _lastResults.recognized
