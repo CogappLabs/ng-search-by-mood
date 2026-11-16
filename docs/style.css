@@ -140,7 +140,10 @@ button[type="submit"]:hover {
   max-width: 1100px;
   margin: 1.5rem auto 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  /* 220px is chosen so 4 columns fit within max-width (1100px) but a 5th
+     never does - keeps every row equal-length on wide screens, while still
+     narrowing down naturally (via auto-fill) on smaller ones */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.5rem;
 }
 

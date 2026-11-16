@@ -5,16 +5,17 @@
 
 const RRF_K = 60; // same constant as rrf_search.py (Cormack, Clarke & Buettcher 2009)
 
-// `rankers` is {name: asyncRankUidsFn}. Returns {ranked: [uid, ...], scores: {uid: score}}.
-export async function fuse(query, rankers) {
-  const rankMaps = await Promise.all(
-    Object.values(rankers).map(async (rankFn) => {
-      const order = await rankFn(query);
-      const map = new Map();
-      order.forEach((uid, i) => map.set(uid, i + 1)); // ranks start at 1
-      return map;
-    })
-  );
+// Core RRF maths over orderings a caller has ALREADY computed - `orders` is
+// {name: [uid, ...]}. Split out from fuse() so app.js can reuse the clip/
+// colour/description orderings it already ran for their own modes, instead
+// of running each ranker a second time just for the combined mode.
+// Returns {ranked: [uid, ...], scores: {uid: score}}.
+export function fuseOrders(orders) {
+  const rankMaps = Object.values(orders).map((order) => {
+    const map = new Map();
+    order.forEach((uid, i) => map.set(uid, i + 1)); // ranks start at 1
+    return map;
+  });
 
   // only paintings present in EVERY ranker are considered, same as the
   // Python version (a handful of paintings are missing from one ranker or
@@ -31,4 +32,17 @@ export async function fuse(query, rankers) {
 
   const ranked = [...candidates].sort((a, b) => scores[b] - scores[a]);
   return { ranked, scores };
+}
+
+// `rankers` is {name: asyncRankUidsFn} - runs each ranker itself, then fuses
+// via fuseOrders(). Kept for parity with rrf_search.py's fuse(); app.js uses
+// fuseOrders() directly instead, since it already has these orderings.
+export async function fuse(query, rankers) {
+  const entries = Object.entries(rankers);
+  const orders = await Promise.all(entries.map(([, rankFn]) => rankFn(query)));
+  const ordersByName = {};
+  entries.forEach(([name], i) => {
+    ordersByName[name] = orders[i];
+  });
+  return fuseOrders(ordersByName);
 }

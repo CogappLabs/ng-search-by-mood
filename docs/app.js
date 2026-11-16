@@ -6,7 +6,7 @@
 import * as clipRank from "./clip-rank.js";
 import * as vadRank from "./vad-rank.js";
 import * as descriptionRank from "./description-rank.js";
-import { fuse } from "./rrf.js";
+import { fuseOrders } from "./rrf.js";
 
 const RESULTS_PER_PAGE = 24;
 
@@ -62,13 +62,29 @@ const BLURBS = {
     across them.`,
 };
 
+// what each mode's score means, shown next to the result count
+const SCORE_LABELS = {
+  clip: "CLIP contrastive margin (higher = closer match)",
+  vad: "VAD distance (lower = closer match)",
+  rrf: "fused RRF score - CLIP + colour + description (higher = closer match)",
+};
+
+// A search runs all three modes at once and keeps every mode's results
+// here, so switching modes with the radio buttons just re-renders from
+// this cache instead of re-running anything. {query, clip, vad, rrf} -
+// each of clip/vad/rrf is a [[uid, score], ...] list, same shape as before.
+let _lastResults = null;
+
 function updateBlurb() {
   const mode = form.querySelector('input[name="mode"]:checked').value;
   blurbEl.innerHTML = BLURBS[mode] || "";
 }
 
 form.querySelectorAll('input[name="mode"]').forEach((input) => {
-  input.addEventListener("change", updateBlurb);
+  input.addEventListener("change", () => {
+    updateBlurb();
+    renderCachedResults();
+  });
 });
 updateBlurb(); // show the default mode's blurb on first load
 
@@ -80,45 +96,57 @@ form.addEventListener("submit", (e) => {
 async function runSearch() {
   const query = queryInput.value.trim();
   if (!query) return;
-  const mode = form.querySelector('input[name="mode"]:checked').value;
 
-  // first search in a mode is slower here too - loading the model/lexicon/
-  // data into the browser, same idea as the old server's first-request cost
+  // first search is slower here too - loading the model/lexicon/data into
+  // the browser, same idea as the old server's first-request cost
   statusEl.textContent = "Searching…";
   resultsEl.innerHTML = "";
 
-  let pairs, scoreLabel;
   try {
-    if (mode === "clip") {
-      pairs = (await clipRank.rankWithScores(query)).slice(0, RESULTS_PER_PAGE);
-      scoreLabel = "CLIP contrastive margin (higher = closer match)";
-    } else if (mode === "vad") {
-      pairs = (await vadRank.rankWithScores(query)).slice(0, RESULTS_PER_PAGE);
-      scoreLabel = "VAD distance (lower = closer match)";
-    } else if (mode === "rrf") {
-      const { ranked, scores } = await fuse(query, {
-        clip: clipRank.rankUids,
-        colour: vadRank.rankUids,
-        description: descriptionRank.rankUids,
-      });
-      pairs = ranked.slice(0, RESULTS_PER_PAGE).map((uid) => [uid, scores[uid]]);
-      scoreLabel = "fused RRF score - CLIP + colour + description (higher = closer match)";
-    } else {
-      statusEl.textContent = `Unknown mode '${mode}'`;
-      return;
-    }
+    // run CLIP and colour-VAD once each (their own mode's results come
+    // straight from these), plus description-VAD (only needed for RRF) -
+    // all in parallel, so e.g. CLIP's text encoder only embeds the query once
+    const [clipPairs, vadPairs, descUids] = await Promise.all([
+      clipRank.rankWithScores(query),
+      vadRank.rankWithScores(query),
+      descriptionRank.rankUids(query),
+    ]);
+
+    // RRF fuses from the orderings just computed above, rather than
+    // re-running each ranker a second time
+    const { ranked, scores } = fuseOrders({
+      clip: clipPairs.map(([uid]) => uid),
+      colour: vadPairs.map(([uid]) => uid),
+      description: descUids,
+    });
+    const rrfPairs = ranked.map((uid) => [uid, scores[uid]]);
+
+    _lastResults = { query, clip: clipPairs, vad: vadPairs, rrf: rrfPairs };
   } catch (err) {
     console.error(err);
     statusEl.textContent = "Something went wrong running the search.";
+    _lastResults = null;
+    return;
+  }
+
+  await renderCachedResults();
+}
+
+// Renders whichever mode is currently selected from _lastResults - called
+// both right after a search finishes, and whenever the mode is switched.
+async function renderCachedResults() {
+  if (!_lastResults) return;
+  const mode = form.querySelector('input[name="mode"]:checked').value;
+  const pairs = _lastResults[mode].slice(0, RESULTS_PER_PAGE);
+  const scoreLabel = SCORE_LABELS[mode];
+
+  if (pairs.length === 0) {
+    statusEl.textContent = "No results.";
+    resultsEl.innerHTML = "";
     return;
   }
 
   const meta = await loadMeta();
-  if (pairs.length === 0) {
-    statusEl.textContent = "No results.";
-    return;
-  }
-
   statusEl.textContent = `${pairs.length} results · ${scoreLabel}`;
   resultsEl.innerHTML = pairs
     .map(([uid, score]) => renderCard({ ...(meta[uid] || {}), score: score.toFixed(4) }))
