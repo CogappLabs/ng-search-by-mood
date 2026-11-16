@@ -162,3 +162,21 @@ re-run):
 Images are © The National Gallery, London, CC BY-NC-ND 4.0: "show them whole and
 unaltered: no cropping, tinting or overlays" — that restriction is about *display*,
 not analysis, but keep it in mind when we get to the actual interface.
+
+## Acknowledgements
+
+This project uses the **NRC Valence, Arousal, and Dominance (NRC-VAD) Lexicon**
+(v2.1), created by Dr. Saif M. Mohammad at the National Research Council Canada,
+non-commercial research/educational use only - see
+[the lexicon's home page](http://saifmohammad.com/WebPages/nrc-vad.html) for its
+full terms. Per those terms: the dataset itself is never redistributed (see
+"Web interface" above for how `worker/` keeps it server-side), and this is the
+required credit/citation:
+
+> This application makes use of the NRC Valence, Arousal, and Dominance (NRC-VAD)
+> Lexicon, created by Dr. Saif M. Mohammad at the National Research Council Canada.
+
+> Mohammad, Saif M. "NRC VAD Lexicon v2: Norms for Valence, Arousal, and Dominance
+> for over 55k English Terms." arXiv preprint arXiv:2503.23547 (2025).
+
+The same credit is shown in the app itself, in `docs/index.html`'s footer.

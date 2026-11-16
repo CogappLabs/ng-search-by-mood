@@ -195,3 +195,18 @@ button[type="submit"]:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.credits {
+  max-width: 720px;
+  margin: 3rem auto 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.credits a {
+  color: inherit;
+}
