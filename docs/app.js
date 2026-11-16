@@ -129,16 +129,23 @@ function renderCard(item) {
   const image = item.image_url
     ? `<img src="${item.image_url}" alt="${escapeHtml(item.title || "")}" loading="lazy" />`
     : "";
-  return `
-    <div class="card">
-      <div class="image-frame">${image}</div>
-      <div class="caption">
-        <div class="title">${escapeHtml(item.title || "Untitled")}</div>
-        <div class="maker">${escapeHtml(item.maker || "Unknown maker")}</div>
-        <div class="score">${item.score}</div>
-      </div>
+  // the API doesn't give a direct link to the painting's page on the NG
+  // website, but nationalgallery.org.uk/paintings/<accession> reliably
+  // redirects to it - open in a new tab so a search doesn't lose its results
+  const nglUrl = item.accession
+    ? `https://www.nationalgallery.org.uk/paintings/${encodeURIComponent(item.accession)}`
+    : null;
+  const cardInner = `
+    <div class="image-frame">${image}</div>
+    <div class="caption">
+      <div class="title">${escapeHtml(item.title || "Untitled")}</div>
+      <div class="maker">${escapeHtml(item.maker || "Unknown maker")}</div>
+      <div class="score">${item.score}</div>
     </div>
   `;
+  return nglUrl
+    ? `<a class="card" href="${nglUrl}" target="_blank" rel="noopener">${cardInner}</a>`
+    : `<div class="card">${cardInner}</div>`;
 }
 
 function escapeHtml(str) {

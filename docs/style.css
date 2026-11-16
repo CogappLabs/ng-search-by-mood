@@ -147,6 +147,12 @@ button[type="submit"]:hover {
 .card {
   display: flex;
   flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.card:hover .title {
+  text-decoration: underline;
 }
 
 /* object-fit: contain (not cover) + a neutral backdrop so every painting is

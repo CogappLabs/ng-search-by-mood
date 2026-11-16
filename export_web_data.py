@@ -47,6 +47,11 @@ def export_paintings():
                     "title": item.get("title"),
                     "maker": item.get("maker"),
                     "image_url": (item.get("image") or {}).get("large"),
+                    # the API has no direct link to the painting's page on the
+                    # NG website, but nationalgallery.org.uk/paintings/<accession>
+                    # reliably redirects to it (checked across a random sample +
+                    # every painting in the dataset has an accession)
+                    "accession": item.get("accession"),
                 }
             )
     (OUT_DIR / "paintings.json").write_text(json.dumps(rows))
