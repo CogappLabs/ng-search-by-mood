@@ -7,6 +7,7 @@ import * as clipRank from "./clip-rank.js";
 import * as vadRank from "./vad-rank.js";
 import * as descriptionRank from "./description-rank.js";
 import { fuseOrders } from "./rrf.js";
+import { scoreQuery } from "./vad-lexicon.js";
 
 const RESULTS_PER_PAGE = 24;
 
@@ -71,8 +72,11 @@ const SCORE_LABELS = {
 
 // A search runs all three modes at once and keeps every mode's results
 // here, so switching modes with the radio buttons just re-renders from
-// this cache instead of re-running anything. {query, clip, vad, rrf} -
-// each of clip/vad/rrf is a [[uid, score], ...] list, same shape as before.
+// this cache instead of re-running anything. {query, recognized, clip, vad,
+// rrf} - each of clip/vad/rrf is a [[uid, score], ...] list, same shape as
+// before. `recognized` is false only when the lexicon matched nothing at
+// all in the query (see vad-lexicon.js) - used to show a specific message
+// rather than a confident-looking list built on no real signal.
 let _lastResults = null;
 
 function updateBlurb() {
@@ -103,17 +107,25 @@ async function runSearch() {
   resultsEl.innerHTML = "";
 
   try {
+    // score the query against the lexicon ONCE and pass it to all three
+    // rankers below, rather than each of them calling the Worker itself -
+    // also gives us `recognized` up front, for the "no real signal" check
+    const queryVad = await scoreQuery(query);
+
     // run CLIP and colour-VAD once each (their own mode's results come
     // straight from these), plus description-VAD (only needed for RRF) -
     // all in parallel, so e.g. CLIP's text encoder only embeds the query once
     const [clipPairs, vadPairs, descUids] = await Promise.all([
-      clipRank.rankWithScores(query),
-      vadRank.rankWithScores(query),
-      descriptionRank.rankUids(query),
+      clipRank.rankWithScores(query, queryVad),
+      vadRank.rankWithScores(query, queryVad),
+      descriptionRank.rankUids(query, queryVad),
     ]);
 
     // RRF fuses from the orderings just computed above, rather than
-    // re-running each ranker a second time
+    // re-running each ranker a second time. When nothing was recognized,
+    // vadPairs/descUids are both already empty (see vad-rank.js), so the
+    // cross-ranker intersection below naturally comes out empty too -
+    // RRF needs no separate "nothing recognized" check of its own.
     const { ranked, scores } = fuseOrders({
       clip: clipPairs.map(([uid]) => uid),
       colour: vadPairs.map(([uid]) => uid),
@@ -121,7 +133,13 @@ async function runSearch() {
     });
     const rrfPairs = ranked.map((uid) => [uid, scores[uid]]);
 
-    _lastResults = { query, clip: clipPairs, vad: vadPairs, rrf: rrfPairs };
+    _lastResults = {
+      query,
+      recognized: queryVad.recognized,
+      clip: clipPairs,
+      vad: vadPairs,
+      rrf: rrfPairs,
+    };
   } catch (err) {
     console.error(err);
     statusEl.textContent = "Something went wrong running the search.";
@@ -141,7 +159,9 @@ async function renderCachedResults() {
   const scoreLabel = SCORE_LABELS[mode];
 
   if (pairs.length === 0) {
-    statusEl.textContent = "No results.";
+    statusEl.textContent = _lastResults.recognized
+      ? "No results."
+      : "We didn't recognise any mood words in that search - try a different word or phrase.";
     resultsEl.innerHTML = "";
     return;
   }

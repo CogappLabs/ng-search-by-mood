@@ -67,13 +67,31 @@ function similarityToAll(vec) {
 
 // Returns [[uid, margin], ...] best match first - see clip_rank.py's
 // rank_with_scores() for the full reasoning behind the contrastive margin
-// and the per-query axis selection.
-export async function rankWithScores(query) {
+// and the per-query axis selection. `precomputedVad` lets a caller that
+// already called scoreQuery() (e.g. app.js, running all three modes per
+// search) skip a redundant lookup - falls back to calling it here if not
+// given.
+export async function rankWithScores(query, precomputedVad) {
   await load();
 
   const queryVec = await embedText(query);
+  const querySims = similarityToAll(queryVec);
 
-  const vad = await scoreQuery(query); // [valence, arousal, dominance]
+  const { vad, recognized } = precomputedVad ?? (await scoreQuery(query));
+
+  // CLIP's own embedding is meaningful regardless of lexicon coverage
+  // (plenty of real, non-nonsense searches - "cathedral", "ship" - aren't
+  // emotion words at all), so this mode still returns results either way.
+  // But when NOTHING in the query matched the lexicon, there's no real
+  // basis for picking which mood axis/pole to contrast against - rather
+  // than silently defaulting to an arbitrary one, skip the contrastive
+  // margin entirely and fall back to plain CLIP similarity.
+  if (!recognized) {
+    const scored = _uids.map((uid, i) => [uid, querySims[i]]);
+    scored.sort((a, b) => b[1] - a[1]);
+    return scored;
+  }
+
   const axes = ["valence", "arousal", "dominance"];
   let dominantAxis = 0;
   for (let i = 1; i < 3; i++) {
@@ -83,8 +101,6 @@ export async function rankWithScores(query) {
   const pole = vad[dominantAxis] >= 0 ? "pos" : "neg";
   const contrastPole = pole === "pos" ? "neg" : "pos";
   const contrastVec = Float32Array.from(_anchorVecs[axisName][contrastPole]);
-
-  const querySims = similarityToAll(queryVec);
   const contrastSims = similarityToAll(contrastVec);
 
   const scored = _uids.map((uid, i) => [uid, querySims[i] - contrastSims[i]]);
@@ -92,6 +108,6 @@ export async function rankWithScores(query) {
   return scored;
 }
 
-export async function rankUids(query) {
-  return (await rankWithScores(query)).map(([uid]) => uid);
+export async function rankUids(query, precomputedVad) {
+  return (await rankWithScores(query, precomputedVad)).map(([uid]) => uid);
 }

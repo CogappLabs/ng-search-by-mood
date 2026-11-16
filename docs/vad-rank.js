@@ -13,11 +13,18 @@ export function createVadRanker(dataUrl) {
     paintings = await fetch(dataUrl).then((r) => r.json());
   }
 
-  // Returns [[uid, distance], ...] best match (smallest distance) first.
-  // Lower is better here - it's a distance, not a similarity.
-  async function rankWithScores(query) {
+  // Returns [[uid, distance], ...] best match (smallest distance) first, or
+  // [] if nothing in the query was recognised - this mode is entirely
+  // lexicon-driven, so "recognised nothing" means there's no real signal to
+  // rank by, not a reason to confidently return whatever sits near neutral.
+  // `precomputedVad` lets a caller that already called scoreQuery() (e.g.
+  // app.js, running all three modes per search) skip a redundant lookup -
+  // falls back to calling it here if not given.
+  async function rankWithScores(query, precomputedVad) {
     await load();
-    const [qv, qa, qd] = await scoreQuery(query);
+    const { vad, recognized } = precomputedVad ?? (await scoreQuery(query));
+    if (!recognized) return [];
+    const [qv, qa, qd] = vad;
     const scored = paintings.map((p) => {
       const dv = p.valence - qv;
       const da = p.arousal - qa;
@@ -28,8 +35,8 @@ export function createVadRanker(dataUrl) {
     return scored;
   }
 
-  async function rankUids(query) {
-    return (await rankWithScores(query)).map(([uid]) => uid);
+  async function rankUids(query, precomputedVad) {
+    return (await rankWithScores(query, precomputedVad)).map(([uid]) => uid);
   }
 
   return { rankWithScores, rankUids };

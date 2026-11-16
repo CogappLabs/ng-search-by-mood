@@ -42,10 +42,16 @@ function tokenize(text) {
 // Same logic as vad_lexicon.py's score_query(): whole-query exact match
 // first, otherwise walk token by token, letting a recognised intensity
 // modifier (e.g. "very", "slightly") scale the word right after it instead
-// of contributing a score of its own. Returns [valence, arousal, dominance].
+// of contributing a score of its own. Returns { vad: [v, a, d], recognized }
+// - `recognized` is false only when literally nothing in the query matched
+// the lexicon (e.g. gibberish like "hdgjgdjhgd"), as opposed to a real
+// phrase where some words just aren't emotion-coded, which still scores
+// normally from whichever words DID match. Callers use this to tell "we
+// understood this and it happens to land near neutral" apart from "we
+// understood nothing at all", rather than silently treating both the same.
 function scoreQuery(text) {
   const key = text.trim().toLowerCase();
-  if (key in lexicon) return lexicon[key];
+  if (key in lexicon) return { vad: lexicon[key], recognized: true };
 
   const tokens = tokenize(text);
   const vectors = [];
@@ -78,10 +84,11 @@ function scoreQuery(text) {
     i += 1;
   }
 
-  if (vectors.length === 0) return [0, 0, 0];
-  return [0, 1, 2].map(
+  if (vectors.length === 0) return { vad: [0, 0, 0], recognized: false };
+  const vad = [0, 1, 2].map(
     (dim) => vectors.reduce((sum, v) => sum + v[dim], 0) / vectors.length
   );
+  return { vad, recognized: true };
 }
 
 export default {
@@ -99,8 +106,11 @@ export default {
       });
     }
 
-    const [valence, arousal, dominance] = scoreQuery(q);
-    return new Response(JSON.stringify({ valence, arousal, dominance }), {
+    const {
+      vad: [valence, arousal, dominance],
+      recognized,
+    } = scoreQuery(q);
+    return new Response(JSON.stringify({ valence, arousal, dominance, recognized }), {
       headers: { "Content-Type": "application/json", ...CORS_HEADERS },
     });
   },

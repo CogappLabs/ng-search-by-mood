@@ -11,13 +11,17 @@
 
 const WORKER_URL = "https://ng-mood-lexicon.emilyo-660.workers.dev";
 
-// Returns [valence, arousal, dominance], same contract as before.
+// Returns { vad: [valence, arousal, dominance], recognized } - `recognized`
+// is false only when literally nothing in the query matched the lexicon
+// (see worker/src/index.js), which callers use to tell a genuinely
+// unrecognised query ("hdgjgdjhgd") apart from one that just happens to
+// land near neutral.
 export async function scoreQuery(text) {
   const url = `${WORKER_URL}/?q=${encodeURIComponent(text)}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`lexicon scoring failed: ${res.status} ${res.statusText}`);
   }
-  const { valence, arousal, dominance } = await res.json();
-  return [valence, arousal, dominance];
+  const { valence, arousal, dominance, recognized } = await res.json();
+  return { vad: [valence, arousal, dominance], recognized };
 }
