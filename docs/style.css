@@ -4,7 +4,7 @@
   --paper: #1b1917; /* off-black page background, not pure black */
   --card: #252320; /* elevated surfaces - input, mode buttons */
   --panel: #211f1b; /* recessed/backdrop surfaces - blurb box, image letterboxing */
-  --accent: #a39a8b; /* stone accent, replacing the old red */
+  --accent: #a39a8b;
   --border: #3a362f;
 }
 
@@ -17,8 +17,10 @@ body {
   padding: 2rem 1rem 4rem;
   background: var(--paper);
   color: var(--ink);
-  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  font-size: 1em;
+  /* font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif; */
+  font-family: Montserrat, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   font-weight: 300;
 }
 
@@ -30,6 +32,7 @@ header {
 
 h1 {
   margin: 0 0 0.25rem;
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   font-weight: 300;
   letter-spacing: 0.01em;
   font-size: 3em;
@@ -38,6 +41,7 @@ h1 {
 .subtitle {
   margin: 0;
   color: var(--muted);
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   font-size: 19px;
 }
 
@@ -57,6 +61,12 @@ h1 {
   background: var(--card);
   font-family: inherit;
   color: var(--ink);
+}
+
+#query::placeholder {
+  opacity: 0.7;
+  font-size: 16px;
+  font-weight: 300;
 }
 
 #query:focus {
@@ -92,28 +102,25 @@ h1 {
 }
 
 .mode-name {
-  font-size: 18px;
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-size: 20px;
   font-weight: 500;
 }
 
 .mode-hint {
   color: var(--muted);
-  font-size: 1rem;
-  margin-top: 4px;
 }
 
 .blurb {
   margin: 0;
-  padding: 0.85rem 1rem;
-  background: var(--panel);
+  padding: 8px 16px;
   border-left: 3px solid var(--accent);
-  font-size: 18px;
-  line-height: 1.3;
   color: var(--ink);
 }
 
 .blurb strong {
   color: var(--accent);
+  font-weight: 600;
 }
 
 button[type="submit"] {
@@ -122,9 +129,9 @@ button[type="submit"] {
   border: none;
   background: var(--accent);
   color: var(--paper);
-  font-size: 19px;
-  font-weight: 600;
-  font-family: inherit;
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -154,6 +161,7 @@ button[type="submit"]:hover {
   flex-direction: column;
   color: inherit;
   text-decoration: none;
+  font-size: 14px;
 }
 
 a.card:hover .title {
@@ -185,19 +193,19 @@ a.card:hover .title {
 }
 
 .card .title {
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1.3;
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.2;
 }
 
 .card .maker {
   color: var(--muted);
-  font-size: 1rem;
+  margin-top: 0.15rem;
 }
 
 .card .score {
   color: var(--muted);
-  font-size: 1rem;
   margin-top: 0.15rem;
 }
 
@@ -213,8 +221,6 @@ a.card:hover .title {
   padding-top: 1rem;
   border-top: 1px solid var(--border);
   color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.5;
   text-align: center;
 }
 
