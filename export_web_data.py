@@ -2,7 +2,15 @@
 for Python scripts) into formats a browser can fetch efficiently, for the
 fully client-side version of the search (see docs/*.js). Writes everything
 into docs/data/ - nothing here is computed fresh, it's all just exporting
-what the existing precompute pipeline already produced."""
+what the existing precompute pipeline already produced.
+
+One exception: the NRC-VAD lexicon itself is NOT written into docs/data/,
+since its licence forbids redistributing the dataset and anything under
+docs/ is served directly by GitHub Pages. Instead it's written into
+worker/src/data/, for the Cloudflare Worker (see worker/src/index.js) to
+bundle into its own deployment - that Worker only ever returns a derived
+score, never the lexicon, so it doesn't redistribute it either. Like
+data/lexicons/, worker/src/data/ is gitignored - never committed."""
 
 import json
 import pathlib
@@ -14,6 +22,7 @@ import clip_rank
 from vad_lexicon import load_lexicon, BOOSTER_DICT
 
 OUT_DIR = pathlib.Path("docs/data")
+WORKER_DATA_DIR = pathlib.Path("worker/src/data")
 
 
 def export_embeddings():
@@ -52,12 +61,16 @@ def export_vad_table(parquet_path, out_name):
 
 
 def export_lexicon():
+    """Write the lexicon for the Worker to bundle into ITS OWN deployment,
+    not for the browser to fetch - see module docstring and
+    worker/src/index.js for why that distinction matters."""
+    WORKER_DATA_DIR.mkdir(parents=True, exist_ok=True)
     lexicon = load_lexicon()
-    (OUT_DIR / "lexicon.json").write_text(json.dumps(lexicon))
-    print(f"lexicon.json: {len(lexicon)} terms")
+    (WORKER_DATA_DIR / "lexicon.json").write_text(json.dumps(lexicon))
+    print(f"worker/src/data/lexicon.json: {len(lexicon)} terms")
 
-    (OUT_DIR / "booster_dict.json").write_text(json.dumps(BOOSTER_DICT))
-    print(f"booster_dict.json: {len(BOOSTER_DICT)} modifier words")
+    (WORKER_DATA_DIR / "booster_dict.json").write_text(json.dumps(BOOSTER_DICT))
+    print(f"worker/src/data/booster_dict.json: {len(BOOSTER_DICT)} modifier words")
 
 
 def export_anchor_vectors():

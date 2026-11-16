@@ -91,20 +91,18 @@ aren't on comparable scales) - defaults to all three. Each ranker is still
 kept as its own independent module (not merged into one scoring function) so
 the interface can offer each as its own mode, not just the fused one.
 
-## Web interface - fully client-side, no backend
+## Web interface - fully client-side, no backend (except one tiny Worker)
 
-Everything runs in the browser now - `docs/` is the *entire* deployment, and
-GitHub Pages can serve it directly with nothing else to host, deploy or pay
-for. This only works because CLIP's TEXT encoder (the only part that needs
-to run per-query) runs in-browser via Hugging Face's Transformers.js
-(`Xenova/clip-vit-base-patch32`, an ONNX port of the same checkpoint
-`embed_images.py` uses) - every painting's IMAGE embedding was already
-precomputed once in Python and is just fetched as static data
-(`docs/data/embeddings.bin`). The VAD-lexicon rankers and RRF fusion involve
-no model at all, just arithmetic, and are plain JS ports of their Python
-originals:
+Everything except a single lexicon lookup runs in the browser - `docs/` is
+the deployment, and GitHub Pages can serve it directly with nothing else to
+host, deploy or pay for. This works because CLIP's TEXT encoder (the only
+part that needs to run per-query) runs in-browser via Hugging Face's
+Transformers.js (`Xenova/clip-vit-base-patch32`, an ONNX port of the same
+checkpoint `embed_images.py` uses) - every painting's IMAGE embedding was
+already precomputed once in Python and is just fetched as static data
+(`docs/data/embeddings.bin`). The RRF fusion logic also involves no model,
+just arithmetic:
 
-- `docs/vad-lexicon.js` ↔ `vad_lexicon.py`
 - `docs/clip-rank.js` ↔ `clip_rank.py`
 - `docs/vad-rank.js` (colour) + `docs/description-rank.js` ↔ `vad_rank.py` / `description_rank.py`
 - `docs/rrf.js` ↔ `rrf_search.py`
@@ -124,6 +122,40 @@ via a local server of your choice (not `file://` - the browser needs to
 Cloud Run/AWS-backed plan before this rewrite) - kept only as the original
 server-based reference implementation, not required to run or deploy the
 interface.
+
+### Why one tiny Worker, and not a fully static lexicon lookup
+
+`docs/vad-lexicon.js` turns free text into a (valence, arousal, dominance)
+triple by looking it up against the NRC-VAD Lexicon. Every other piece of
+data in `docs/data/` is ours (our own CLIP embeddings, our own colour/
+description scores) and is fine to ship as a public static file. The
+lexicon itself isn't - its licence explicitly says **"Do not redistribute
+the data... you may not otherwise permit third parties to use it"** - and a
+`docs/data/lexicon.json` that every GitHub Pages visitor's browser
+downloads directly would be exactly that.
+
+The old Flask backend (`app.py`) never had this problem, since it kept the
+lexicon server-side and only ever returned computed scores. `worker/` is the
+smallest possible equivalent for the client-side version: a single
+Cloudflare Worker (`worker/src/index.js`) that does the same lookup
+`vad_lexicon.py`/the old client-side `vad-lexicon.js` did, but keeps the
+dataset server-side and returns only the derived score for whatever text was
+sent - never the lexicon. `docs/vad-lexicon.js` now just calls that Worker's
+URL instead of loading `lexicon.json` locally; `clip-rank.js` and
+`vad-rank.js`/`description-rank.js` are unchanged, since they only ever
+called `scoreQuery()`, not the lexicon directly.
+
+To set it up (needed once, regenerate any time `export_web_data.py` is
+re-run):
+
+1. `python export_web_data.py` writes the Worker's own copy of the lexicon
+   to `worker/src/data/` (gitignored, same reasoning as `data/lexicons/` -
+   never committed, regenerate locally instead).
+2. `npm install -g wrangler` (Wrangler needs Node 22+), then `wrangler login`
+   from a free Cloudflare account - this opens a browser tab to authorise
+   the CLI.
+3. From `worker/`, run `wrangler deploy`. Copy the resulting
+   `*.workers.dev` URL into `docs/vad-lexicon.js`'s `WORKER_URL` constant.
 
 ## Licensing note
 

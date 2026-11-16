@@ -12,3 +12,9 @@ data/*.json
 # non-commercial/research-only licence - don't redistribute it, just
 # re-download per the README instead
 data/lexicons/
+# same lexicon, reshaped for the Cloudflare Worker to bundle into its OWN
+# deployment (never served by GitHub Pages) - regenerate via
+# `python export_web_data.py`, never commit it
+worker/src/data/
+# wrangler's own local build/dev cache, not source
+worker/.wrangler/
