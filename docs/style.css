@@ -1,10 +1,11 @@
 :root {
-  --ink: #2a2420;
-  --muted: #7a7169;
-  --paper: #faf6f0;
-  --card: #ffffff;
-  --accent: #7a2e2e;
-  --border: #e4ddd3;
+  --ink: #ece7dc; /* light warm text */
+  --muted: #8f8779; /* dimmer stone-gray, for secondary text */
+  --paper: #1b1917; /* off-black page background, not pure black */
+  --card: #252320; /* elevated surfaces - input, mode buttons */
+  --panel: #211f1b; /* recessed/backdrop surfaces - blurb box, image letterboxing */
+  --accent: #a39a8b; /* stone accent, replacing the old red */
+  --border: #3a362f;
 }
 
 * {
@@ -16,7 +17,9 @@ body {
   padding: 2rem 1rem 4rem;
   background: var(--paper);
   color: var(--ink);
-  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-size: 1em;
+  font-weight: 300;
 }
 
 header {
@@ -27,14 +30,15 @@ header {
 
 h1 {
   margin: 0 0 0.25rem;
-  font-weight: 600;
+  font-weight: 300;
   letter-spacing: 0.01em;
+  font-size: 3em;
 }
 
 .subtitle {
   margin: 0;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 19px;
 }
 
 #search-form {
@@ -50,7 +54,6 @@ h1 {
   font-size: 1.1rem;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
   background: var(--card);
   font-family: inherit;
   color: var(--ink);
@@ -73,10 +76,8 @@ h1 {
   gap: 0.15rem;
   padding: 0.6rem 0.75rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
   background: var(--card);
   cursor: pointer;
-  font-size: 0.85rem;
 }
 
 .mode-option:has(input:checked) {
@@ -91,22 +92,23 @@ h1 {
 }
 
 .mode-name {
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .mode-hint {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 1rem;
+  margin-top: 4px;
 }
 
 .blurb {
   margin: 0;
   padding: 0.85rem 1rem;
-  background: #f1ece3;
+  background: var(--panel);
   border-left: 3px solid var(--accent);
-  border-radius: 4px;
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 18px;
+  line-height: 1.3;
   color: var(--ink);
 }
 
@@ -118,10 +120,10 @@ button[type="submit"] {
   align-self: center;
   padding: 0.6rem 2rem;
   border: none;
-  border-radius: 999px;
   background: var(--accent);
-  color: #fff;
-  font-size: 1rem;
+  color: var(--paper);
+  font-size: 19px;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
 }
@@ -162,7 +164,7 @@ a.card:hover .title {
    shown whole, uncropped and untinted - the National Gallery's licence
    requires images not be cropped, tinted or overlaid */
 .card .image-frame {
-  background: #efe9e1;
+  background: var(--panel);
   border-radius: 6px;
   aspect-ratio: 1 / 1;
   display: flex;
@@ -184,18 +186,18 @@ a.card:hover .title {
 
 .card .title {
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 1rem;
   line-height: 1.3;
 }
 
 .card .maker {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
 .card .score {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 1rem;
   margin-top: 0.15rem;
 }
 
@@ -211,7 +213,7 @@ a.card:hover .title {
   padding-top: 1rem;
   border-top: 1px solid var(--border);
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 1rem;
   line-height: 1.5;
   text-align: center;
 }
