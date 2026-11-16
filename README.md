@@ -15,6 +15,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+**TODO:** `requirements.txt` pins `Pillow==12.3.0`, which has 43 known CVEs
+(GitHub's Dependabot flags them) - all fixed in Pillow 13.0.0, but that
+release dropped Python 3.10 support, which this venv currently uses. Low
+real-world risk for now (Pillow is only used by `embed_images.py`, a local
+script opening already-downloaded, trusted images - never exposed to the
+internet), so the alerts are dismissed as tolerable risk rather than fixed.
+Proper fix: upgrade the dev environment to Python 3.11+, bump Pillow to
+13.0.0, and re-verify the precompute pipeline still works.
+
 Copy `.env.example` to `.env` and fill in the real `NG_API_USER` / `NG_API_PASS`
 (ask in the team channel if you don't have them) - `.env` is gitignored, so
 these never end up in source control. This is only needed to run the
