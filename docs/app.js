@@ -91,18 +91,49 @@ function updateBlurb() {
   blurbEl.innerHTML = BLURBS[mode] || "";
 }
 
+// Keeps ?q=...&mode=... in the address bar in sync with the current search,
+// so the URL alone is enough to share a search and its results with someone
+// else - replaceState (not pushState) so switching modes doesn't clutter
+// browser history with near-identical entries.
+function updateUrl(query, mode) {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (mode) params.set("mode", mode);
+  const search = params.toString();
+  history.replaceState(null, "", search ? `?${search}` : window.location.pathname);
+}
+
 form.querySelectorAll('input[name="mode"]').forEach((input) => {
   input.addEventListener("change", () => {
     updateBlurb();
     renderCachedResults();
+    if (_lastResults) updateUrl(_lastResults.query, input.value);
   });
 });
-updateBlurb(); // show the default mode's blurb on first load
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   runSearch();
 });
+
+// On load, a shared link's ?q=...&mode=... pre-fills the form and re-runs
+// the search automatically, so the person receiving it sees the same results
+// rather than just the same words in an empty search box.
+(function initFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get("mode");
+  if (mode) {
+    const radio = form.querySelector(`input[name="mode"][value="${mode}"]`);
+    if (radio) radio.checked = true;
+  }
+  updateBlurb();
+
+  const query = params.get("q");
+  if (query) {
+    queryInput.value = query;
+    runSearch();
+  }
+})();
 
 async function runSearch() {
   const query = queryInput.value.trim();
@@ -147,6 +178,7 @@ async function runSearch() {
       vad: vadPairs,
       rrf: rrfPairs,
     };
+    updateUrl(query, form.querySelector('input[name="mode"]:checked').value);
   } catch (err) {
     console.error(err);
     statusEl.textContent = "Something went wrong running the search.";
